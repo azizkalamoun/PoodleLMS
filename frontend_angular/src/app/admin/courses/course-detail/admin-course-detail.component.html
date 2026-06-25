@@ -1,0 +1,771 @@
+<div *ngIf="course" class="space-y-6">
+  <!-- Header -->
+  <div>
+    <a
+      routerLink="/admin/courses"
+      class="inline-flex items-center gap-1 text-sm text-surface-500 hover:text-brand-600 transition-colors no-underline mb-4"
+    >
+      <span class="material-icons-outlined !text-lg">arrow_back</span>
+      Back to Courses
+    </a>
+    <div
+      class="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3"
+    >
+      <div>
+        <h1 class="text-2xl font-bold text-surface-900">{{ course.title }}</h1>
+        <p class="text-sm text-surface-500 mt-1">{{ course.description }}</p>
+      </div>
+      <div class="flex items-center gap-3 flex-shrink-0">
+        <app-status-badge
+          [status]="course.status"
+          [dot]="true"
+        ></app-status-badge>
+        <span class="text-sm text-surface-500 flex items-center gap-1">
+          <span class="material-icons-outlined !text-base">grade</span>
+          Passing: {{ course.passingScore }}%
+        </span>
+      </div>
+    </div>
+  </div>
+
+  <!-- Tabs -->
+  <mat-tab-group animationDuration="200ms" class="modern-tabs">
+    <!-- SECTIONS TAB -->
+    <mat-tab>
+      <ng-template mat-tab-label>
+        <span class="flex items-center gap-2">
+          <span class="material-icons-outlined !text-lg">library_books</span>
+          Sections ({{ sections.length }})
+        </span>
+      </ng-template>
+
+      <div class="py-5 space-y-4">
+        <div class="flex justify-between items-center">
+          <h2 class="text-base font-semibold text-surface-900">
+            Course Sections
+          </h2>
+          <button
+            class="btn-primary flex items-center gap-2 !text-sm"
+            (click)="openAddSectionModal()"
+          >
+            <span class="material-icons-outlined !text-lg">add</span>
+            Add Section
+          </button>
+        </div>
+
+        <!-- Sections List with Drag-Drop -->
+        <div
+          cdkDropList
+          #sectionsList="cdkDropList"
+          [cdkDropListData]="sections"
+          (cdkDropListDropped)="onSectionDrop($event)"
+          class="space-y-3"
+        >
+          <mat-expansion-panel
+            *ngFor="let section of sections; let i = index"
+            cdkDrag
+            class="cursor-move hover:shadow-md transition-shadow"
+          >
+            <mat-expansion-panel-header>
+              <span
+                class="material-icons-outlined !text-base text-surface-400 mr-2"
+                >drag_handle</span
+              >
+              <mat-panel-title class="flex items-center gap-3 flex-1">
+                <div
+                  class="w-8 h-8 rounded-lg bg-surface-100 flex items-center justify-center flex-shrink-0"
+                >
+                  <span
+                    class="material-icons-outlined !text-base text-surface-500"
+                    >{{ getSectionIcon(section.type) }}</span
+                  >
+                </div>
+                <span class="text-sm font-medium">{{ section.title }}</span>
+              </mat-panel-title>
+              <mat-panel-description>
+                <span
+                  class="text-[10px] font-medium bg-surface-100 text-surface-600 px-2 py-0.5 rounded-full"
+                  >{{ section.type }}</span
+                >
+              </mat-panel-description>
+            </mat-expansion-panel-header>
+
+            <div class="space-y-4 pt-2">
+              <!-- TEXT content -->
+              <div
+                *ngIf="section.type === 'TEXT'"
+                class="p-4 bg-surface-50 rounded-lg"
+              >
+                <p class="text-sm text-surface-700 whitespace-pre-wrap">
+                  {{ section.content }}
+                </p>
+              </div>
+
+              <!-- VIDEO viewer -->
+              <div
+                *ngIf="section.type === 'VIDEO' && section.mediaUrl"
+                class="rounded-xl overflow-hidden border border-surface-200 bg-black max-w-3xl"
+              >
+                <video controls class="w-full rounded-xl" preload="metadata">
+                  <source [src]="section.mediaUrl" type="video/mp4" />
+                  Your browser does not support video playback.
+                </video>
+              </div>
+
+              <!-- AUDIO viewer -->
+              <div
+                *ngIf="section.type === 'AUDIO' && section.mediaUrl"
+                class="p-4 rounded-xl bg-surface-50 border border-surface-200 max-w-2xl flex items-center gap-4"
+              >
+                <div
+                  class="w-10 h-10 rounded-lg bg-orange-50 text-orange-600 flex items-center justify-center flex-shrink-0"
+                >
+                  <span class="material-icons-outlined !text-xl"
+                    >audiotrack</span
+                  >
+                </div>
+                <audio controls class="w-full">
+                  <source [src]="section.mediaUrl" type="audio/mpeg" />
+                  Your browser does not support audio playback.
+                </audio>
+              </div>
+
+              <!-- PDF viewer -->
+              <div
+                *ngIf="section.type === 'PDF' && section.mediaUrl"
+                class="space-y-3"
+              >
+                <div
+                  class="rounded-xl overflow-hidden border border-surface-200 bg-surface-50"
+                  style="height: 500px"
+                >
+                  <iframe
+                    [src]="getPdfViewerUrl(section.mediaUrl)"
+                    class="w-full h-full"
+                    frameborder="0"
+                    allowfullscreen="true"
+                    allow="clipboard-write"
+                    title="PDF Document"
+                  ></iframe>
+                </div>
+                <a
+                  [href]="section.mediaUrl"
+                  target="_blank"
+                  download
+                  class="inline-flex items-center gap-2 text-sm font-medium text-red-500 hover:text-red-700 transition-colors"
+                >
+                  <span class="material-icons-outlined !text-lg">download</span>
+                  Download PDF
+                </a>
+              </div>
+
+              <!-- IMAGE viewer -->
+              <div
+                *ngIf="section.type === 'IMAGE' && section.mediaUrl"
+                class="max-w-3xl"
+              >
+                <div
+                  class="rounded-xl overflow-hidden border border-surface-200 bg-surface-50"
+                >
+                  <img
+                    [src]="section.mediaUrl"
+                    [alt]="section.title"
+                    class="w-full h-auto object-contain max-h-[500px]"
+                  />
+                </div>
+              </div>
+
+              <!-- QCM Questions -->
+              <div *ngIf="section.type === 'QCM'" class="space-y-4">
+                <div class="flex justify-between items-center">
+                  <h3 class="text-sm font-semibold text-surface-900">
+                    Questions ({{ section.questions?.length || 0 }})
+                  </h3>
+                  <div class="flex gap-2">
+                    <button
+                      class="btn-secondary !text-xs flex items-center gap-1"
+                      (click)="openAddQuestionModal(section.id)"
+                    >
+                      <span class="material-icons-outlined !text-sm">add</span>
+                      Add Question
+                    </button>
+                    <button
+                      *ngIf="section.llmDraftEnabled"
+                      class="btn-secondary !text-xs flex items-center gap-1"
+                      (click)="generateQcmDraft(section)"
+                    >
+                      <span class="material-icons-outlined !text-sm"
+                        >auto_awesome</span
+                      >
+                      Generate Draft
+                    </button>
+                  </div>
+                </div>
+
+                <!-- Questions List -->
+                <div
+                  *ngFor="let q of section.questions; let qi = index"
+                  class="border border-surface-200 rounded-xl p-4 bg-white"
+                >
+                  <div class="flex justify-between items-start">
+                    <div class="flex-1">
+                      <p class="text-sm font-medium text-surface-900 mb-2">
+                        Q{{ qi + 1 }}: {{ q.text }}
+                      </p>
+                      <div class="space-y-1.5">
+                        <div
+                          *ngFor="let opt of q.options; let oi = index"
+                          class="flex items-center gap-2 text-sm"
+                          [class]="
+                            oi === q.correctAnswerIndex
+                              ? 'text-emerald-700 font-medium'
+                              : 'text-surface-600'
+                          "
+                        >
+                          <span class="material-icons-outlined !text-sm">{{
+                            oi === q.correctAnswerIndex
+                              ? "check_circle"
+                              : "radio_button_unchecked"
+                          }}</span>
+                          {{ opt }}
+                        </div>
+                      </div>
+                    </div>
+                    <div class="flex items-center gap-2">
+                      <button
+                        class="w-8 h-8 rounded-lg flex items-center justify-center hover:bg-blue-50 text-surface-400 hover:text-blue-600 transition-colors"
+                        (click)="editQuestion(section.id, q)"
+                        matTooltip="Edit question"
+                      >
+                        <span class="material-icons-outlined !text-base"
+                          >edit</span
+                        >
+                      </button>
+                      <button
+                        class="w-8 h-8 rounded-lg flex items-center justify-center hover:bg-red-50 text-surface-400 hover:text-red-500 transition-colors"
+                        (click)="deleteQuestion(section.id, q.id)"
+                        matTooltip="Delete question"
+                      >
+                        <span class="material-icons-outlined !text-base"
+                          >delete</span
+                        >
+                      </button>
+                    </div>
+                  </div>
+                </div>
+
+                <app-empty-state
+                  *ngIf="!section.questions || section.questions.length === 0"
+                  icon="quiz"
+                  title="No questions yet"
+                  message="Add or generate questions for this quiz."
+                >
+                  <button
+                    class="btn-primary mt-2 !text-sm"
+                    (click)="openAddQuestionModal(section.id)"
+                  >
+                    <span class="material-icons-outlined !text-base mr-1"
+                      >add</span
+                    >
+                    Add Question
+                  </button>
+                </app-empty-state>
+              </div>
+
+              <!-- Delete Section -->
+              <div
+                class="flex justify-end gap-2 pt-2 border-t border-surface-100"
+              >
+                <button
+                  class="btn-secondary !text-xs flex items-center gap-1"
+                  (click)="editSection(section)"
+                >
+                  <span class="material-icons-outlined !text-sm">edit</span>
+                  Edit Section
+                </button>
+                <button
+                  class="btn-danger !text-xs flex items-center gap-1"
+                  (click)="deleteSection(section)"
+                >
+                  <span class="material-icons-outlined !text-sm">delete</span>
+                  Delete Section
+                </button>
+              </div>
+            </div>
+          </mat-expansion-panel>
+        </div>
+
+        <app-empty-state
+          *ngIf="sections.length === 0"
+          icon="library_books"
+          title="No sections yet"
+          message="Add sections to build this course."
+        >
+          <button
+            class="btn-primary mt-2 !text-sm"
+            (click)="openAddSectionModal()"
+          >
+            <span class="material-icons-outlined !text-base mr-1">add</span>
+            Add First Section
+          </button>
+        </app-empty-state>
+      </div>
+    </mat-tab>
+
+    <!-- ASSIGNMENTS TAB -->
+    <mat-tab>
+      <ng-template mat-tab-label>
+        <span class="flex items-center gap-2">
+          <span class="material-icons-outlined !text-lg">assignment</span>
+          Assignments ({{ assignments.length }})
+        </span>
+      </ng-template>
+
+      <div class="py-5 space-y-4">
+        <div class="flex justify-between items-center">
+          <h2 class="text-base font-semibold text-surface-900">
+            Department Assignments
+          </h2>
+          <button
+            class="btn-primary flex items-center gap-2 !text-sm"
+            (click)="openAssignModal()"
+          >
+            <span class="material-icons-outlined !text-lg">add</span>
+            Assign Department
+          </button>
+        </div>
+
+        <!-- Assignments List -->
+        <div
+          *ngFor="let a of assignments"
+          class="card flex items-center justify-between"
+        >
+          <div class="flex items-center gap-3">
+            <div
+              class="w-9 h-9 rounded-lg bg-violet-50 flex items-center justify-center flex-shrink-0"
+            >
+              <span class="material-icons-outlined !text-base text-violet-600"
+                >business</span
+              >
+            </div>
+            <div>
+              <p class="text-sm font-medium text-surface-900">
+                {{ a.departmentName || "Department #" + a.departmentId }}
+              </p>
+              <p class="text-xs text-surface-500">
+                Deadline: {{ a.deadlineDate | date: "mediumDate" }}
+              </p>
+            </div>
+          </div>
+          <button
+            class="w-8 h-8 rounded-lg flex items-center justify-center hover:bg-red-50 text-surface-400 hover:text-red-500 transition-colors"
+            (click)="removeAssignment(a)"
+            matTooltip="Remove assignment"
+          >
+            <span class="material-icons-outlined !text-base">delete</span>
+          </button>
+        </div>
+
+        <app-empty-state
+          *ngIf="assignments.length === 0"
+          icon="assignment"
+          title="No assignments yet"
+          message="Assign this course to departments."
+        >
+          <button class="btn-primary mt-2 !text-sm" (click)="openAssignModal()">
+            <span class="material-icons-outlined !text-base mr-1">add</span>
+            Assign Department
+          </button>
+        </app-empty-state>
+      </div>
+    </mat-tab>
+  </mat-tab-group>
+</div>
+
+<app-skeleton *ngIf="!course" type="card" [count]="2"></app-skeleton>
+
+<!-- MODALS -->
+
+<!-- Section Form Modal -->
+<ng-template #sectionFormTemplate>
+  <div class="p-6 max-w-4xl">
+    <!-- Header -->
+    <div class="flex items-center gap-3 mb-6 pb-4 border-b border-surface-200">
+      <div
+        class="w-10 h-10 rounded-lg bg-brand-50 flex items-center justify-center"
+      >
+        <span class="material-icons-outlined text-brand-600">{{
+          editingSectionId ? "edit" : "add"
+        }}</span>
+      </div>
+      <h2 class="text-lg font-semibold text-surface-900">
+        {{ editingSectionId ? "Edit Section" : "Add Section" }}
+      </h2>
+    </div>
+
+    <!-- Content -->
+    <form
+      [formGroup]="sectionForm"
+      (ngSubmit)="onSectionSubmit()"
+      class="grid grid-cols-1 md:grid-cols-2 gap-4"
+    >
+      <mat-form-field appearance="outline">
+        <mat-label>Title</mat-label>
+        <input matInput formControlName="title" />
+        <mat-error *ngIf="sectionForm.get('title')?.hasError('required')"
+          >Required</mat-error
+        >
+      </mat-form-field>
+
+      <mat-form-field appearance="outline">
+        <mat-label>Type</mat-label>
+        <mat-select formControlName="type">
+          <mat-option value="TEXT">Text</mat-option>
+          <mat-option value="VIDEO">Video</mat-option>
+          <mat-option value="IMAGE">Image</mat-option>
+          <mat-option value="AUDIO">Audio</mat-option>
+          <mat-option value="PDF">PDF</mat-option>
+          <mat-option value="QCM">QCM (Quiz)</mat-option>
+        </mat-select>
+      </mat-form-field>
+
+      <mat-form-field appearance="outline">
+        <mat-label>Order Index</mat-label>
+        <input matInput formControlName="orderIndex" type="number" min="0" />
+      </mat-form-field>
+
+      <!-- QCM Type selector - shown only if not FINAL -->
+      <mat-form-field
+        appearance="outline"
+        *ngIf="
+          sectionForm.get('type')?.value === 'QCM' &&
+          sectionForm.get('qcmType')?.value !== 'FINAL'
+        "
+      >
+        <mat-label>QCM Type</mat-label>
+        <mat-select formControlName="qcmType">
+          <mat-option value="PRACTICE">Practice</mat-option>
+          <mat-option value="FINAL">Final Exam</mat-option>
+        </mat-select>
+      </mat-form-field>
+
+      <mat-form-field
+        appearance="outline"
+        *ngIf="sectionForm.get('type')?.value === 'QCM'"
+      >
+        <mat-label>Max Attempts</mat-label>
+        <input
+          matInput
+          type="number"
+          min="1"
+          max="20"
+          formControlName="maxAttempts"
+        />
+        <mat-hint>Number of times an employee can attempt this quiz</mat-hint>
+        <mat-error *ngIf="sectionForm.get('maxAttempts')?.hasError('min')"
+          >Must be at least 1</mat-error
+        >
+        <mat-error *ngIf="sectionForm.get('maxAttempts')?.hasError('max')"
+          >Cannot exceed 20</mat-error
+        >
+      </mat-form-field>
+
+      <div
+        class="md:col-span-2 flex items-center mb-2"
+        *ngIf="sectionForm.get('type')?.value === 'QCM'"
+      >
+        <label class="flex items-center gap-2 cursor-pointer">
+          <input
+            type="checkbox"
+            formControlName="llmDraftEnabled"
+            class="w-4 h-4 text-brand-600 rounded border-surface-300 focus:ring-brand-500"
+          />
+          <span class="text-sm font-medium text-surface-700"
+            >Enable AI Question Generation</span
+          >
+        </label>
+      </div>
+
+      <mat-form-field appearance="outline" class="md:col-span-2">
+        <mat-label>File Description (For AI Context)</mat-label>
+        <textarea
+          matInput
+          formControlName="fileDescription"
+          rows="3"
+          placeholder="Additional details or extracted text for AI context. (Not visible to users)"
+        ></textarea>
+      </mat-form-field>
+
+      <!-- QCM Type selector - shown at bottom if FINAL -->
+      <mat-form-field
+        appearance="outline"
+        *ngIf="
+          sectionForm.get('type')?.value === 'QCM' &&
+          sectionForm.get('qcmType')?.value === 'FINAL'
+        "
+      >
+        <mat-label>QCM Type</mat-label>
+        <mat-select formControlName="qcmType">
+          <mat-option value="PRACTICE">Practice</mat-option>
+          <mat-option value="FINAL">Final Exam</mat-option>
+        </mat-select>
+      </mat-form-field>
+
+      <!-- Content for TEXT type -->
+      <mat-form-field
+        appearance="outline"
+        class="md:col-span-2"
+        *ngIf="sectionForm.get('type')?.value === 'TEXT'"
+      >
+        <mat-label>Content</mat-label>
+        <textarea matInput formControlName="content" rows="5"></textarea>
+      </mat-form-field>
+
+      <!-- File upload -->
+      <div
+        class="md:col-span-2"
+        *ngIf="
+          ['VIDEO', 'AUDIO', 'PDF', 'IMAGE'].includes(
+            sectionForm.get('type')?.value
+          )
+        "
+      >
+        <div
+          class="border-2 border-dashed border-surface-300 rounded-xl p-8 text-center hover:border-brand-400 transition-colors bg-surface-50"
+        >
+          <span class="material-icons-outlined !text-4xl text-surface-300 mb-3"
+            >cloud_upload</span
+          >
+          <p class="text-sm text-surface-600 mb-3">
+            Upload {{ sectionForm.get("type")?.value }} file
+          </p>
+          <input
+            type="file"
+            (change)="onFileSelected($event)"
+            [accept]="getAcceptType()"
+            class="hidden"
+            #fileInput
+          />
+          <button
+            type="button"
+            class="btn-secondary !text-sm"
+            (click)="fileInput.click()"
+          >
+            Choose File
+          </button>
+          <p
+            *ngIf="selectedFile"
+            class="mt-3 text-sm text-emerald-600 font-medium flex items-center justify-center gap-1"
+          >
+            <span class="material-icons-outlined !text-base">check_circle</span>
+            {{ selectedFile.name }}
+          </p>
+          <div *ngIf="uploading" class="mt-4 space-y-2">
+            <mat-progress-bar
+              mode="determinate"
+              [value]="uploadProgress"
+              class="rounded-full"
+            ></mat-progress-bar>
+            <div class="flex justify-between items-center">
+              <span class="text-xs text-surface-600"> Uploading... </span>
+              <span class="text-sm font-semibold text-brand-600">
+                {{ uploadProgress }}%
+              </span>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Validation Messages -->
+      <div
+        *ngIf="
+          sectionForm.get('type')?.value !== 'TEXT' &&
+          sectionForm.get('type')?.value !== 'QCM' &&
+          !sectionForm.get('mediaUrl')?.value
+        "
+        class="md:col-span-2 p-3 bg-amber-50 border border-amber-200 rounded-lg text-sm text-amber-700 flex items-start gap-2"
+      >
+        <span class="material-icons-outlined !text-lg flex-shrink-0">info</span>
+        <span
+          >Please upload a {{ sectionForm.get("type")?.value }} file before
+          creating the section.</span
+        >
+      </div>
+
+      <!-- Footer -->
+      <div
+        class="md:col-span-2 flex gap-3 justify-end pt-6 mt-4 border-t border-surface-200"
+      >
+        <button
+          type="button"
+          class="px-4 py-2.5 text-sm font-medium text-surface-700 bg-white border border-surface-300 rounded-lg hover:bg-surface-50 transition-colors"
+          (click)="resetSectionForm(); dialogRef?.close(false)"
+        >
+          Cancel
+        </button>
+        <button
+          type="submit"
+          class="px-4 py-2.5 text-sm font-medium text-white bg-brand-600 rounded-lg hover:bg-brand-700 transition-colors"
+          [disabled]="!canSubmitSection() || uploading"
+        >
+          {{ editingSectionId ? "Update Section" : "Create Section" }}
+        </button>
+      </div>
+    </form>
+  </div>
+</ng-template>
+
+<!-- Question Form Modal -->
+<ng-template #questionFormTemplate>
+  <div class="p-6 max-w-2xl">
+    <!-- Header -->
+    <div class="flex items-center gap-3 mb-6 pb-4 border-b border-surface-200">
+      <div
+        class="w-10 h-10 rounded-lg bg-brand-50 flex items-center justify-center"
+      >
+        <span class="material-icons-outlined text-brand-600">{{
+          editingQuestionId ? "edit" : "add_box"
+        }}</span>
+      </div>
+      <h2 class="text-lg font-semibold text-surface-900">
+        {{ editingQuestionId ? "Edit Question" : "Add Question" }}
+      </h2>
+    </div>
+
+    <!-- Content -->
+    <form
+      [formGroup]="questionForm"
+      (ngSubmit)="onQuestionSubmit(editingQuestionSectionId)"
+      class="space-y-4"
+    >
+      <mat-form-field appearance="outline" class="w-full">
+        <mat-label>Question Text</mat-label>
+        <textarea matInput formControlName="text" rows="3"></textarea>
+        <mat-error *ngIf="questionForm.get('text')?.hasError('required')"
+          >Required</mat-error
+        >
+      </mat-form-field>
+
+      <div formArrayName="options">
+        <p class="text-xs font-medium text-surface-600 mb-2">Options:</p>
+        <div
+          *ngFor="let opt of optionsArray.controls; let j = index"
+          class="flex items-center gap-2 mb-2"
+        >
+          <mat-form-field appearance="outline" class="flex-1 !mb-0">
+            <mat-label>Option {{ j + 1 }}</mat-label>
+            <input matInput [formControlName]="j" />
+            <mat-error>Required</mat-error>
+          </mat-form-field>
+          <button
+            type="button"
+            class="w-8 h-8 rounded-lg flex items-center justify-center hover:bg-red-50 text-surface-400 hover:text-red-500 transition-colors"
+            (click)="removeOption(j)"
+            *ngIf="optionsArray.length > 4"
+            title="Minimum 4 options required"
+          >
+            <span class="material-icons-outlined !text-base"
+              >remove_circle</span
+            >
+          </button>
+        </div>
+        <button
+          type="button"
+          class="text-xs text-brand-600 hover:text-brand-700 flex items-center gap-1"
+          (click)="addOption()"
+        >
+          <span class="material-icons-outlined !text-sm">add</span>
+          Add Option
+        </button>
+      </div>
+
+      <mat-form-field appearance="outline" class="w-full">
+        <mat-label>Correct Answer Index (0-based)</mat-label>
+        <input
+          matInput
+          formControlName="correctAnswerIndex"
+          type="number"
+          min="0"
+        />
+        <mat-error>Required</mat-error>
+      </mat-form-field>
+
+      <!-- Footer -->
+      <div class="flex gap-3 justify-end pt-6 mt-4 border-t border-surface-200">
+        <button
+          type="button"
+          class="px-4 py-2.5 text-sm font-medium text-surface-700 bg-white border border-surface-300 rounded-lg hover:bg-surface-50 transition-colors"
+          (click)="cancelEditQuestion(); dialogRef?.close(false)"
+        >
+          Cancel
+        </button>
+        <button
+          type="submit"
+          class="px-4 py-2.5 text-sm font-medium text-white bg-brand-600 rounded-lg hover:bg-brand-700 transition-colors"
+          [disabled]="questionForm.invalid"
+        >
+          {{ editingQuestionId ? "Update Question" : "Add Question" }}
+        </button>
+      </div>
+    </form>
+  </div>
+</ng-template>
+
+<!-- Assignment Form Modal -->
+<ng-template #assignFormTemplate>
+  <div class="p-6 max-w-2xl">
+    <!-- Header -->
+    <div class="flex items-center gap-3 mb-6 pb-4 border-b border-surface-200">
+      <div
+        class="w-10 h-10 rounded-lg bg-brand-50 flex items-center justify-center"
+      >
+        <span class="material-icons-outlined text-brand-600">assignment</span>
+      </div>
+      <h2 class="text-lg font-semibold text-surface-900">
+        Assign to Department
+      </h2>
+    </div>
+
+    <!-- Content -->
+    <form
+      [formGroup]="assignForm"
+      (ngSubmit)="onAssignSubmit()"
+      class="space-y-4"
+    >
+      <mat-form-field appearance="outline" class="w-full">
+        <mat-label>Department</mat-label>
+        <mat-select formControlName="departmentId">
+          <mat-option *ngFor="let d of departments" [value]="d.id">{{
+            d.name
+          }}</mat-option>
+        </mat-select>
+        <mat-error>Required</mat-error>
+      </mat-form-field>
+
+      <mat-form-field appearance="outline" class="w-full">
+        <mat-label>Deadline </mat-label>
+        <input matInput [matDatepicker]="picker" formControlName="deadline" />
+        <mat-datepicker-toggle matSuffix [for]="picker"></mat-datepicker-toggle>
+        <mat-datepicker #picker></mat-datepicker>
+      </mat-form-field>
+
+      <!-- Footer -->
+      <div class="flex gap-3 justify-end pt-6 mt-4 border-t border-surface-200">
+        <button
+          type="button"
+          class="px-4 py-2.5 text-sm font-medium text-surface-700 bg-white border border-surface-300 rounded-lg hover:bg-surface-50 transition-colors"
+          (click)="assignForm.reset(); dialogRef?.close(false)"
+        >
+          Cancel
+        </button>
+        <button
+          type="submit"
+          class="px-4 py-2.5 text-sm font-medium text-white bg-brand-600 rounded-lg hover:bg-brand-700 transition-colors"
+          [disabled]="assignForm.invalid"
+        >
+          Assign
+        </button>
+      </div>
+    </form>
+  </div>
+</ng-template>

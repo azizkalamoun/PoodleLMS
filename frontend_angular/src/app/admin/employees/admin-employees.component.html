@@ -1,0 +1,273 @@
+<app-page-header
+  title="Employees"
+  subtitle="Manage your organization's workforce"
+  [breadcrumbs]="breadcrumbs"
+>
+  <button
+    class="btn-primary flex items-center gap-2"
+    (click)="openAddEmployeeModal()"
+  >
+    <span class="material-icons-outlined !text-lg">add</span>
+    Add Employee
+  </button>
+</app-page-header>
+
+<!-- Filter Bar -->
+<div class="card mb-6 space-y-4">
+  <div class="grid grid-cols-1 md:grid-cols-3 gap-4 items-center">
+    <!-- Search Field -->
+    <mat-form-field appearance="outline" class="w-full">
+      <mat-label>Search employees</mat-label>
+      <input
+        matInput
+        placeholder="Search by name or email..."
+        [ngModel]="searchTerm"
+        (ngModelChange)="onSearchChange($event)"
+      />
+      <span matPrefix class="mr-2">
+        <span class="material-icons-outlined !text-lg text-surface-400"
+          >search</span
+        >
+      </span>
+      <button
+        *ngIf="searchTerm"
+        mat-icon-button
+        matSuffix
+        (click)="onSearchChange('')"
+        class="text-surface-400 !h-9 !w-9"
+      >
+        <span class="material-icons-outlined">close</span>
+      </button>
+    </mat-form-field>
+
+    <!-- Department Filter -->
+    <mat-form-field appearance="outline" class="w-full">
+      <mat-label>Filter by Department</mat-label>
+      <mat-select
+        [ngModel]="selectedDeptFilter"
+        (ngModelChange)="onDepartmentFilterChange($event)"
+      >
+        <mat-option [value]="0">All Departments</mat-option>
+        <mat-option *ngFor="let dept of departments" [value]="dept.id">{{
+          dept.name
+        }}</mat-option>
+      </mat-select>
+    </mat-form-field>
+
+    <!-- Results Count -->
+    <div
+      class="flex items-center justify-end px-4 py-4 rounded-lg bg-surface-50 border border-surface-200 h-full"
+    >
+      <span class="text-sm text-surface-600">
+        <strong class="text-surface-900">{{ dataSource.data.length }}</strong>
+        of
+        <strong class="text-surface-900">{{ allEmployees.length }}</strong>
+        employees
+      </span>
+    </div>
+  </div>
+</div>
+
+<!-- Table -->
+<div class="card !p-0 overflow-hidden">
+  <app-skeleton *ngIf="loading" type="table"></app-skeleton>
+
+  <div *ngIf="!loading && dataSource.data.length === 0" class="p-8">
+    <app-empty-state
+      icon="people"
+      title="No employees found"
+      message="Get started by adding your first employee."
+    >
+      <button class="btn-primary mt-2" (click)="openAddEmployeeModal()">
+        <span class="material-icons-outlined !text-lg mr-1">add</span>
+        Add Employee
+      </button>
+    </app-empty-state>
+  </div>
+
+  <div *ngIf="!loading && dataSource.data.length > 0" class="overflow-x-auto">
+    <table mat-table [dataSource]="dataSource" class="w-full">
+      <ng-container matColumnDef="id">
+        <th mat-header-cell *matHeaderCellDef>ID</th>
+        <td
+          mat-cell
+          *matCellDef="let e"
+          class="!text-surface-500 !font-mono !text-xs"
+        >
+          {{ e.id }}
+        </td>
+      </ng-container>
+
+      <ng-container matColumnDef="name">
+        <th mat-header-cell *matHeaderCellDef>Name</th>
+        <td mat-cell *matCellDef="let e">
+          <div class="flex items-center gap-3">
+            <div
+              class="w-8 h-8 rounded-full bg-brand-100 text-brand-700 flex items-center justify-center text-xs font-semibold flex-shrink-0"
+            >
+              {{ e.firstName?.charAt(0) }}{{ e.lastName?.charAt(0) }}
+            </div>
+            <span class="font-medium text-surface-900"
+              >{{ e.firstName }} {{ e.lastName }}</span
+            >
+          </div>
+        </td>
+      </ng-container>
+
+      <ng-container matColumnDef="email">
+        <th mat-header-cell *matHeaderCellDef>Email</th>
+        <td mat-cell *matCellDef="let e" class="!text-surface-600">
+          {{ e.email }}
+        </td>
+      </ng-container>
+
+      <ng-container matColumnDef="role">
+        <th mat-header-cell *matHeaderCellDef>Role</th>
+        <td mat-cell *matCellDef="let e">
+          <app-status-badge [status]="e.role" [dot]="true"></app-status-badge>
+        </td>
+      </ng-container>
+
+      <ng-container matColumnDef="department">
+        <th mat-header-cell *matHeaderCellDef>Department</th>
+        <td mat-cell *matCellDef="let e" class="!text-surface-600">
+          {{ e.departmentName || "N/A" }}
+        </td>
+      </ng-container>
+
+      <ng-container matColumnDef="actions">
+        <th mat-header-cell *matHeaderCellDef class="!text-right">Actions</th>
+        <td mat-cell *matCellDef="let e" class="!text-right">
+          <div class="flex items-center justify-end gap-1">
+            <button
+              class="w-8 h-8 rounded-lg flex items-center justify-center hover:bg-brand-50 text-surface-500 hover:text-brand-600 transition-colors"
+              (click)="viewEmployeeProgress(e)"
+              matTooltip="View Progress"
+            >
+              <span class="material-icons-outlined !text-lg">trending_up</span>
+            </button>
+            <button
+              class="w-8 h-8 rounded-lg flex items-center justify-center hover:bg-surface-100 text-surface-500 transition-colors"
+              (click)="editEmployee(e)"
+              matTooltip="Edit"
+            >
+              <span class="material-icons-outlined !text-lg">edit</span>
+            </button>
+            <button
+              class="w-8 h-8 rounded-lg flex items-center justify-center hover:bg-red-50 text-surface-500 hover:text-red-600 transition-colors"
+              (click)="deleteEmployee(e)"
+              matTooltip="Delete"
+            >
+              <span class="material-icons-outlined !text-lg">delete</span>
+            </button>
+          </div>
+        </td>
+      </ng-container>
+
+      <tr mat-header-row *matHeaderRowDef="displayedColumns"></tr>
+      <tr
+        mat-row
+        *matRowDef="let row; columns: displayedColumns"
+        class="hover:bg-surface-50 transition-colors"
+      ></tr>
+    </table>
+
+    <mat-paginator
+      [length]="totalElements"
+      [pageSize]="pageSize"
+      [pageSizeOptions]="[5, 10, 25]"
+      showFirstLastButtons
+    ></mat-paginator>
+  </div>
+</div>
+
+<!-- Employee Form Modal Template -->
+<ng-template #employeeFormTemplate>
+  <div class="p-6 max-h-[90vh] overflow-y-auto">
+    <h2 class="text-xl font-semibold text-surface-900 mb-6">
+      {{ editingId ? "Edit Employee" : "New Employee" }}
+    </h2>
+
+    <form [formGroup]="employeeForm" (ngSubmit)="onSubmit()" class="space-y-5">
+      <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+        <mat-form-field appearance="outline" class="w-full">
+          <mat-label>First Name</mat-label>
+          <input matInput formControlName="firstName" placeholder="John" />
+          <mat-error *ngIf="employeeForm.get('firstName')?.hasError('required')"
+            >Required</mat-error
+          >
+        </mat-form-field>
+
+        <mat-form-field appearance="outline" class="w-full">
+          <mat-label>Last Name</mat-label>
+          <input matInput formControlName="lastName" placeholder="Doe" />
+          <mat-error *ngIf="employeeForm.get('lastName')?.hasError('required')"
+            >Required</mat-error
+          >
+        </mat-form-field>
+
+        <mat-form-field appearance="outline" class="w-full">
+          <mat-label>Email</mat-label>
+          <input
+            matInput
+            formControlName="email"
+            type="email"
+            placeholder="john@company.com"
+          />
+          <mat-error *ngIf="employeeForm.get('email')?.hasError('required')"
+            >Required</mat-error
+          >
+          <mat-error *ngIf="employeeForm.get('email')?.hasError('email')"
+            >Invalid email</mat-error
+          >
+        </mat-form-field>
+
+        <mat-form-field appearance="outline" class="w-full" *ngIf="!editingId">
+          <mat-label>Password</mat-label>
+          <input matInput formControlName="password" type="password" />
+          <mat-error *ngIf="employeeForm.get('password')?.hasError('required')"
+            >Required</mat-error
+          >
+          <mat-error *ngIf="employeeForm.get('password')?.hasError('minlength')"
+            >Min 8 chars</mat-error
+          >
+        </mat-form-field>
+
+        <mat-form-field appearance="outline" class="w-full">
+          <mat-label>Department</mat-label>
+          <mat-select formControlName="departmentId">
+            <mat-option [value]="null">None</mat-option>
+            <mat-option *ngFor="let dept of departments" [value]="dept.id">{{
+              dept.name
+            }}</mat-option>
+          </mat-select>
+        </mat-form-field>
+
+        <mat-form-field appearance="outline" class="w-full">
+          <mat-label>Role</mat-label>
+          <mat-select formControlName="role">
+            <mat-option value="ROLE_EMPLOYEE">Employee</mat-option>
+            <mat-option value="ROLE_ADMIN">Admin</mat-option>
+          </mat-select>
+        </mat-form-field>
+      </div>
+
+      <div class="flex gap-3 justify-end pt-4 border-t border-surface-200">
+        <button
+          type="button"
+          class="btn-secondary"
+          (click)="dialogRef.close(false)"
+        >
+          Cancel
+        </button>
+        <button
+          type="submit"
+          class="btn-primary"
+          [disabled]="employeeForm.invalid"
+        >
+          {{ editingId ? "Update Employee" : "Create Employee" }}
+        </button>
+      </div>
+    </form>
+  </div>
+</ng-template>

@@ -1,0 +1,593 @@
+<app-page-header
+  title="Analytics"
+  subtitle="Training performance insights"
+  [breadcrumbs]="breadcrumbs"
+></app-page-header>
+
+<app-skeleton *ngIf="loading" type="kpi" [count]="3"></app-skeleton>
+
+<div *ngIf="!loading" class="space-y-6">
+  <!-- KPI Cards Section (Collapsible) -->
+  <mat-expansion-panel
+    [expanded]="sectionsExpanded.kpi"
+    (opened)="sectionsExpanded.kpi = true"
+    (closed)="sectionsExpanded.kpi = false"
+    class="!shadow-none !border border-surface-100 hover:border-brand-200 transition-colors"
+  >
+    <mat-expansion-panel-header
+      class="!h-auto hover:bg-brand-50 transition-colors"
+    >
+      <div class="flex items-center gap-3 py-3">
+        <span class="material-icons-outlined text-2xl text-brand-600"
+          >dashboard</span
+        >
+        <div>
+          <h2 class="text-lg font-bold text-surface-900">
+            Key Performance Indicators
+          </h2>
+          <p class="text-xs text-surface-500 font-medium">
+            Overall training metrics and overview
+          </p>
+        </div>
+      </div>
+    </mat-expansion-panel-header>
+
+    <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6 pt-4">
+      <!-- Completion Rate Card -->
+      <div
+        class="card group relative overflow-hidden border border-surface-100 hover:border-brand-300 hover:shadow-xl transition-all duration-300 cursor-pointer"
+      >
+        <div
+          class="absolute inset-0 bg-gradient-to-br from-brand-50 to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-300"
+        ></div>
+
+        <div class="relative z-10">
+          <div class="flex items-start justify-between mb-4">
+            <div class="flex-1">
+              <p
+                class="text-xs font-semibold uppercase tracking-widest text-surface-500 group-hover:text-brand-600 transition-colors"
+              >
+                Completion Rate
+              </p>
+              <p
+                class="mt-3 text-5xl font-bold text-surface-900 tracking-tight"
+              >
+                {{ overview?.completionRate || 0 | number: "1.1-1"
+                }}<span class="text-xl font-semibold text-surface-500">%</span>
+              </p>
+            </div>
+            <div
+              class="w-16 h-16 rounded-2xl bg-gradient-to-br from-brand-100 to-brand-50 text-brand-600 flex items-center justify-center shadow-md group-hover:shadow-lg group-hover:scale-125 group-hover:-translate-y-1 transition-all duration-300"
+            >
+              <span class="material-icons-outlined !text-4xl">trending_up</span>
+            </div>
+          </div>
+          <p class="text-xs text-surface-500 mt-3 font-medium">
+            Training completion progress
+          </p>
+        </div>
+      </div>
+
+      <!-- Pass Rate Card -->
+      <div
+        class="card group relative overflow-hidden border border-surface-100 hover:border-emerald-300 hover:shadow-xl transition-all duration-300 cursor-pointer"
+      >
+        <div
+          class="absolute inset-0 bg-gradient-to-br from-emerald-50 to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-300"
+        ></div>
+
+        <div class="relative z-10">
+          <div class="flex items-start justify-between mb-4">
+            <div class="flex-1">
+              <p
+                class="text-xs font-semibold uppercase tracking-widest text-surface-500 group-hover:text-emerald-600 transition-colors"
+              >
+                Pass Rate
+              </p>
+              <p
+                class="mt-3 text-5xl font-bold text-surface-900 tracking-tight"
+              >
+                {{ overview?.passRate || 0 | number: "1.1-1"
+                }}<span class="text-xl font-semibold text-surface-500">%</span>
+              </p>
+            </div>
+            <div
+              class="w-16 h-16 rounded-2xl bg-gradient-to-br from-emerald-100 to-emerald-50 text-emerald-600 flex items-center justify-center shadow-md group-hover:shadow-lg group-hover:scale-125 group-hover:-translate-y-1 transition-all duration-300"
+            >
+              <span class="material-icons-outlined !text-4xl"
+                >check_circle</span
+              >
+            </div>
+          </div>
+          <p class="text-xs text-surface-500 mt-3 font-medium">
+            Successful assessment rate
+          </p>
+        </div>
+      </div>
+
+      <!-- Average Score Card -->
+      <div
+        class="card group relative overflow-hidden border border-surface-100 hover:border-purple-300 hover:shadow-xl transition-all duration-300 cursor-pointer"
+      >
+        <div
+          class="absolute inset-0 bg-gradient-to-br from-purple-50 to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-300"
+        ></div>
+
+        <div class="relative z-10">
+          <div class="flex items-start justify-between mb-4">
+            <div class="flex-1">
+              <p
+                class="text-xs font-semibold uppercase tracking-widest text-surface-500 group-hover:text-purple-600 transition-colors"
+              >
+                Average Score
+              </p>
+              <p
+                class="mt-3 text-5xl font-bold text-surface-900 tracking-tight"
+              >
+                {{ overview?.averageScore || 0 | number: "1.1-1"
+                }}<span class="text-xl font-semibold text-surface-500"
+                  >/100</span
+                >
+              </p>
+            </div>
+            <div
+              class="w-16 h-16 rounded-2xl bg-gradient-to-br from-purple-100 to-purple-50 text-purple-600 flex items-center justify-center shadow-md group-hover:shadow-lg group-hover:scale-125 group-hover:-translate-y-1 transition-all duration-300"
+            >
+              <span class="material-icons-outlined !text-4xl">grade</span>
+            </div>
+          </div>
+          <p class="text-xs text-surface-500 mt-3 font-medium">
+            Mean performance across courses
+          </p>
+        </div>
+      </div>
+    </div>
+  </mat-expansion-panel>
+
+  <!-- Charts Section (Collapsible) -->
+  <mat-expansion-panel
+    [expanded]="sectionsExpanded.charts"
+    (opened)="sectionsExpanded.charts = true"
+    (closed)="sectionsExpanded.charts = false"
+    class="!shadow-none !border border-surface-100 hover:border-brand-200 transition-colors"
+  >
+    <mat-expansion-panel-header
+      class="!h-auto hover:bg-brand-50 transition-colors"
+    >
+      <div class="flex items-center gap-3 py-3">
+        <span class="material-icons-outlined text-2xl text-brand-600"
+          >bar_chart</span
+        >
+        <div>
+          <h2 class="text-lg font-bold text-surface-900">Performance Trends</h2>
+          <p class="text-xs text-surface-500 font-medium">
+            Course-wise analytics and insights
+          </p>
+        </div>
+      </div>
+    </mat-expansion-panel-header>
+
+    <div class="grid grid-cols-1 lg:grid-cols-2 gap-6 pt-4">
+      <!-- Completion Rate Chart -->
+      <div
+        class="card border border-surface-100 hover:border-brand-200 hover:shadow-lg transition-all duration-300 group overflow-hidden"
+      >
+        <div
+          class="absolute inset-0 bg-gradient-to-br from-brand-50 to-transparent opacity-0 group-hover:opacity-50 transition-opacity duration-300 pointer-events-none"
+        ></div>
+        <div class="relative z-10">
+          <div class="flex items-center justify-between mb-6">
+            <h3
+              class="text-base font-semibold text-surface-900 group-hover:text-brand-600 transition-colors"
+            >
+              Completion Rate by Course
+            </h3>
+            <span
+              class="material-icons-outlined !text-xl text-brand-400 group-hover:scale-110 transition-transform duration-300"
+              >trending_up</span
+            >
+          </div>
+          <canvas
+            baseChart
+            *ngIf="
+              completionChartData.labels &&
+              completionChartData.labels.length > 0
+            "
+            [data]="completionChartData"
+            [options]="lineChartOptions"
+            type="line"
+            class="mb-2"
+          ></canvas>
+          <div
+            *ngIf="
+              !completionChartData.labels ||
+              completionChartData.labels.length === 0
+            "
+            class="py-12"
+          >
+            <app-empty-state
+              icon="bar_chart"
+              title="No data"
+              message="No completion data available yet."
+            ></app-empty-state>
+          </div>
+        </div>
+      </div>
+
+      <!-- Pass Rate Chart -->
+      <div
+        class="card border border-surface-100 hover:border-emerald-200 hover:shadow-lg transition-all duration-300 group overflow-hidden"
+      >
+        <div
+          class="absolute inset-0 bg-gradient-to-br from-emerald-50 to-transparent opacity-0 group-hover:opacity-50 transition-opacity duration-300 pointer-events-none"
+        ></div>
+        <div class="relative z-10">
+          <div class="flex items-center justify-between mb-6">
+            <h3
+              class="text-base font-semibold text-surface-900 group-hover:text-emerald-600 transition-colors"
+            >
+              Pass Rate by Course
+            </h3>
+            <span
+              class="material-icons-outlined !text-xl text-emerald-400 group-hover:scale-110 transition-transform duration-300"
+              >assessment</span
+            >
+          </div>
+          <canvas
+            baseChart
+            *ngIf="
+              passRateChartData.labels && passRateChartData.labels.length > 0
+            "
+            [data]="passRateChartData"
+            [options]="barChartOptions"
+            type="bar"
+            class="mb-2"
+          ></canvas>
+          <div
+            *ngIf="
+              !passRateChartData.labels || passRateChartData.labels.length === 0
+            "
+            class="py-12"
+          >
+            <app-empty-state
+              icon="bar_chart"
+              title="No data"
+              message="No pass rate data available yet."
+            ></app-empty-state>
+          </div>
+        </div>
+      </div>
+
+      <!-- Average Scores Chart -->
+      <div
+        class="card border border-surface-100 hover:border-purple-200 hover:shadow-lg transition-all duration-300 group overflow-hidden"
+      >
+        <div
+          class="absolute inset-0 bg-gradient-to-br from-purple-50 to-transparent opacity-0 group-hover:opacity-50 transition-opacity duration-300 pointer-events-none"
+        ></div>
+        <div class="relative z-10">
+          <div class="flex items-center justify-between mb-6">
+            <h3
+              class="text-base font-semibold text-surface-900 group-hover:text-purple-600 transition-colors"
+            >
+              Average Scores by Course
+            </h3>
+            <span
+              class="material-icons-outlined !text-xl text-purple-400 group-hover:scale-110 transition-transform duration-300"
+              >show_chart</span
+            >
+          </div>
+          <canvas
+            baseChart
+            *ngIf="
+              avgScoreChartData.labels && avgScoreChartData.labels.length > 0
+            "
+            [data]="avgScoreChartData"
+            [options]="barChartOptions"
+            type="bar"
+            class="mb-2"
+          ></canvas>
+          <div
+            *ngIf="
+              !avgScoreChartData.labels || avgScoreChartData.labels.length === 0
+            "
+            class="py-12"
+          >
+            <app-empty-state
+              icon="bar_chart"
+              title="No data"
+              message="No score data available yet."
+            ></app-empty-state>
+          </div>
+        </div>
+      </div>
+
+      <!-- Enrollment Distribution Chart -->
+      <div
+        class="card border border-surface-100 hover:border-cyan-200 hover:shadow-lg transition-all duration-300 group overflow-hidden"
+      >
+        <div
+          class="absolute inset-0 bg-gradient-to-br from-cyan-50 to-transparent opacity-0 group-hover:opacity-50 transition-opacity duration-300 pointer-events-none"
+        ></div>
+        <div class="relative z-10">
+          <div class="flex items-center justify-between mb-6">
+            <h3
+              class="text-base font-semibold text-surface-900 group-hover:text-cyan-600 transition-colors"
+            >
+              Enrollments by Course
+            </h3>
+            <span
+              class="material-icons-outlined !text-xl text-cyan-400 group-hover:scale-110 transition-transform duration-300"
+              >group</span
+            >
+          </div>
+          <div class="relative">
+            <canvas
+              baseChart
+              *ngIf="
+                enrollmentChartData.labels &&
+                enrollmentChartData.labels.length > 0
+              "
+              [data]="enrollmentChartData"
+              [options]="doughnutChartOptions"
+              type="doughnut"
+            ></canvas>
+          </div>
+          <div
+            *ngIf="
+              !enrollmentChartData.labels ||
+              enrollmentChartData.labels.length === 0
+            "
+            class="py-12"
+          >
+            <app-empty-state
+              icon="donut_large"
+              title="No data"
+              message="No enrollment data available yet."
+            ></app-empty-state>
+          </div>
+        </div>
+      </div>
+    </div>
+  </mat-expansion-panel>
+
+  <!-- Overdue Enrollments Section (Collapsible) -->
+  <mat-expansion-panel
+    [expanded]="sectionsExpanded.overdue"
+    (opened)="sectionsExpanded.overdue = true"
+    (closed)="sectionsExpanded.overdue = false"
+    class="!shadow-none !border border-surface-100 hover:border-red-200 transition-colors"
+  >
+    <mat-expansion-panel-header
+      class="!h-auto hover:bg-red-50 transition-colors"
+    >
+      <div class="flex items-center gap-3 py-3">
+        <span class="material-icons-outlined text-2xl text-red-500"
+          >warning</span
+        >
+        <div>
+          <h2 class="text-lg font-bold text-surface-900">
+            Overdue Enrollments
+          </h2>
+          <p class="text-xs text-surface-500 font-medium">
+            {{ overdueEnrollments.length }} pending completions
+          </p>
+        </div>
+      </div>
+    </mat-expansion-panel-header>
+
+    <div class="pt-4">
+      <div class="overflow-x-auto">
+        <table
+          mat-table
+          [dataSource]="overdueEnrollments"
+          class="w-full"
+          *ngIf="overdueEnrollments.length > 0"
+        >
+          <ng-container matColumnDef="employeeName">
+            <th
+              mat-header-cell
+              *matHeaderCellDef
+              class="!font-bold !text-surface-900 !text-xs"
+            >
+              Employee
+            </th>
+            <td
+              mat-cell
+              *matCellDef="let e"
+              class="!font-semibold !text-surface-900 !py-4"
+            >
+              {{ e.employeeName }}
+            </td>
+          </ng-container>
+          <ng-container matColumnDef="courseTitle">
+            <th
+              mat-header-cell
+              *matHeaderCellDef
+              class="!font-bold !text-surface-900 !text-xs"
+            >
+              Course
+            </th>
+            <td mat-cell *matCellDef="let e" class="!py-4">
+              {{ e.courseTitle }}
+            </td>
+          </ng-container>
+          <ng-container matColumnDef="departmentName">
+            <th
+              mat-header-cell
+              *matHeaderCellDef
+              class="!font-bold !text-surface-900 !text-xs"
+            >
+              Department
+            </th>
+            <td mat-cell *matCellDef="let e" class="!py-4">
+              {{ e.departmentName }}
+            </td>
+          </ng-container>
+          <ng-container matColumnDef="deadline">
+            <th
+              mat-header-cell
+              *matHeaderCellDef
+              class="!font-bold !text-surface-900 !text-xs"
+            >
+              Deadline
+            </th>
+            <td mat-cell *matCellDef="let e" class="!py-4">
+              <span
+                class="inline-flex items-center gap-1.5 text-red-500 font-semibold text-sm px-3 py-1.5 rounded-md bg-red-50"
+              >
+                <span class="material-icons-outlined !text-base"
+                  >calendar_today</span
+                >
+                {{ e.deadline | date: "mediumDate" }}
+              </span>
+            </td>
+          </ng-container>
+          <tr
+            mat-header-row
+            *matHeaderRowDef="overdueColumns"
+            class="bg-gradient-to-r from-surface-50 to-surface-25 border-b-2 border-surface-200"
+          ></tr>
+          <tr
+            mat-row
+            *matRowDef="let row; columns: overdueColumns"
+            class="hover:bg-red-50 hover:shadow-sm transition-all duration-200 border-b border-surface-100 cursor-pointer group"
+          ></tr>
+        </table>
+        <div *ngIf="overdueEnrollments.length === 0" class="p-12">
+          <app-empty-state
+            icon="check_circle"
+            title="All caught up"
+            message="No overdue enrollments."
+          ></app-empty-state>
+        </div>
+      </div>
+    </div>
+  </mat-expansion-panel>
+
+  <!-- Most Failed Questions Section (Collapsible) -->
+  <mat-expansion-panel
+    [expanded]="sectionsExpanded.failed"
+    (opened)="sectionsExpanded.failed = true"
+    (closed)="sectionsExpanded.failed = false"
+    class="!shadow-none !border border-surface-100 hover:border-amber-200 transition-colors"
+  >
+    <mat-expansion-panel-header
+      class="!h-auto hover:bg-amber-50 transition-colors"
+    >
+      <div class="flex items-center gap-3 py-3">
+        <span class="material-icons-outlined text-2xl text-amber-600"
+          >help_outline</span
+        >
+        <div>
+          <h2 class="text-lg font-bold text-surface-900">
+            Most Failed Questions
+          </h2>
+          <p class="text-xs text-surface-500 font-medium">
+            {{ failedQuestions.length }} questions
+          </p>
+        </div>
+      </div>
+    </mat-expansion-panel-header>
+
+    <div class="pt-4">
+      <div class="overflow-x-auto">
+        <table
+          mat-table
+          [dataSource]="failedQuestions"
+          class="w-full"
+          *ngIf="failedQuestions.length > 0"
+        >
+          <ng-container matColumnDef="questionText">
+            <th
+              mat-header-cell
+              *matHeaderCellDef
+              class="!font-bold !text-surface-900 !text-xs"
+            >
+              Question
+            </th>
+            <td
+              mat-cell
+              *matCellDef="let q"
+              class="!font-semibold !text-surface-900 !py-4"
+              [title]="q.questionText"
+            >
+              <span class="truncate">{{ q.questionText }}</span>
+            </td>
+          </ng-container>
+          <ng-container matColumnDef="courseTitle">
+            <th
+              mat-header-cell
+              *matHeaderCellDef
+              class="!font-bold !text-surface-900 !text-xs"
+            >
+              Course
+            </th>
+            <td mat-cell *matCellDef="let q" class="!py-4">
+              {{ q.courseTitle }}
+            </td>
+          </ng-container>
+          <ng-container matColumnDef="sectionTitle">
+            <th
+              mat-header-cell
+              *matHeaderCellDef
+              class="!font-bold !text-surface-900 !text-xs"
+            >
+              Section
+            </th>
+            <td mat-cell *matCellDef="let q" class="!py-4">
+              {{ q.sectionTitle }}
+            </td>
+          </ng-container>
+          <ng-container matColumnDef="failureRate">
+            <th
+              mat-header-cell
+              *matHeaderCellDef
+              class="!font-bold !text-surface-900 !text-xs"
+            >
+              Failure Rate
+            </th>
+            <td mat-cell *matCellDef="let q" class="!py-4">
+              <span
+                class="inline-flex items-center gap-2 px-3 py-1.5 rounded-md font-semibold"
+                [ngClass]="{
+                  'bg-red-100 text-red-700': q.failureRate > 50,
+                  'bg-amber-100 text-amber-700':
+                    q.failureRate <= 50 && q.failureRate > 25,
+                  'bg-yellow-100 text-yellow-700': q.failureRate <= 25,
+                }"
+              >
+                <span
+                  class="h-2.5 w-2.5 rounded-full"
+                  [ngClass]="{
+                    'bg-red-500': q.failureRate > 50,
+                    'bg-amber-500': q.failureRate <= 50 && q.failureRate > 25,
+                    'bg-yellow-500': q.failureRate <= 25,
+                  }"
+                ></span>
+                {{ q.failureRate | number: "1.1-1" }}%
+              </span>
+            </td>
+          </ng-container>
+          <tr
+            mat-header-row
+            *matHeaderRowDef="failedColumns"
+            class="bg-gradient-to-r from-surface-50 to-surface-25 border-b-2 border-surface-200"
+          ></tr>
+          <tr
+            mat-row
+            *matRowDef="let row; columns: failedColumns"
+            class="hover:bg-amber-50 hover:shadow-sm transition-all duration-200 border-b border-surface-100 cursor-pointer group"
+          ></tr>
+        </table>
+        <div *ngIf="failedQuestions.length === 0" class="p-12">
+          <app-empty-state
+            icon="quiz"
+            title="No data"
+            message="No failed question data available."
+          ></app-empty-state>
+        </div>
+      </div>
+    </div>
+  </mat-expansion-panel>
+</div>

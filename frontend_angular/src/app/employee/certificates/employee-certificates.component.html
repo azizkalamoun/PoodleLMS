@@ -1,0 +1,177 @@
+<div class="space-y-8 animate-fade-in">
+  <!-- Page Header -->
+  <app-page-header
+    title="My Certificates"
+    subtitle="View and download certificates for completed courses."
+  ></app-page-header>
+
+  <!-- Stats Summary -->
+  <div
+    *ngIf="!loading && certificates.length > 0"
+    class="flex items-center gap-3"
+  >
+    <div
+      class="flex items-center gap-2 px-4 py-2 rounded-lg bg-warning-50 border border-warning-100"
+    >
+      <span class="material-icons-outlined text-warning-600"
+        >workspace_premium</span
+      >
+      <span class="text-sm font-medium text-warning-800"
+        >{{ certificates.length }} Certificate{{
+          certificates.length > 1 ? "s" : ""
+        }}
+        Earned</span
+      >
+    </div>
+  </div>
+
+  <!-- Skeleton Loading -->
+  <app-skeleton *ngIf="loading" type="card" [count]="4"></app-skeleton>
+
+  <!-- Empty State -->
+  <app-empty-state
+    *ngIf="!loading && certificates.length === 0"
+    icon="workspace_premium"
+    title="No certificates yet"
+    message="Complete courses to earn certificates! Your achievements will appear here."
+  ></app-empty-state>
+
+  <!-- Certificate Cards -->
+  <div
+    *ngIf="!loading && certificates.length > 0"
+    class="grid grid-cols-1 lg:grid-cols-2 gap-6"
+  >
+    <div
+      *ngFor="let cert of certificates"
+      class="card group hover:shadow-card-hover transition-all duration-200 relative"
+    >
+      <div *ngIf="cert.revoked" class="absolute top-3 right-3 z-10">
+        <span
+          class="px-2 py-1 bg-red-100 text-red-700 text-xs font-semibold rounded-full flex items-center gap-1"
+        >
+          <span class="material-icons-outlined text-sm">cancel</span>
+          Revoked
+        </span>
+      </div>
+
+      <div class="flex flex-col sm:flex-row gap-5">
+        <!-- QR Code -->
+        <div class="flex-shrink-0 flex items-center justify-center">
+          <div class="p-3 rounded-xl bg-surface-50 border border-surface-100">
+            <app-qr-code
+              [data]="getVerificationUrl(cert)"
+              [size]="130"
+              [label]="'Scan to verify'"
+            ></app-qr-code>
+          </div>
+        </div>
+
+        <!-- Certificate Details -->
+        <div class="flex-1 min-w-0">
+          <div class="flex items-start gap-2">
+            <span class="material-icons-outlined text-warning-500 mt-0.5"
+              >workspace_premium</span
+            >
+            <div class="min-w-0">
+              <h3 class="text-lg font-semibold text-surface-900 truncate">
+                {{ cert.courseTitle }}
+              </h3>
+              <p class="text-sm text-surface-500 mt-0.5">
+                Certificate of Completion
+              </p>
+            </div>
+          </div>
+
+          <div class="mt-4 space-y-2.5">
+            <div class="flex items-center gap-2 text-sm text-surface-600">
+              <span class="material-icons-outlined text-base text-surface-400"
+                >person</span
+              >
+              <span>{{ cert.employeeName }}</span>
+            </div>
+            <div class="flex items-center gap-2 text-sm text-surface-600">
+              <span class="material-icons-outlined text-base text-surface-400"
+                >grade</span
+              >
+              <span
+                >Score:
+                <strong class="text-surface-900"
+                  >{{ cert.score }}%</strong
+                ></span
+              >
+            </div>
+            <div class="flex items-center gap-2 text-sm text-surface-600">
+              <span class="material-icons-outlined text-base text-surface-400"
+                >calendar_today</span
+              >
+              <span>Issued: {{ cert.issuedAt | date: "mediumDate" }}</span>
+            </div>
+            <div class="flex items-center gap-2 text-sm text-surface-600">
+              <span class="material-icons-outlined text-base text-surface-400"
+                >verified</span
+              >
+              <code
+                class="px-2 py-0.5 rounded bg-surface-100 text-xs font-mono text-surface-600"
+                >{{ cert.verificationCode }}</code
+              >
+            </div>
+          </div>
+
+          <div class="mt-4 flex gap-2" *ngIf="!cert.revoked && isAdmin">
+            <button
+              mat-raised-button
+              color="warn"
+              (click)="revokeCertificate(cert)"
+              [disabled]="actionInProgress[cert.id]"
+              class="flex-1"
+            >
+              <span
+                *ngIf="!actionInProgress[cert.id]"
+                class="flex items-center gap-2"
+              >
+                <span class="material-icons-outlined text-base">block</span>
+                Revoke Certificate
+              </span>
+              <span
+                *ngIf="actionInProgress[cert.id]"
+                class="flex items-center gap-2"
+              >
+                <span class="material-icons-outlined text-base animate-spin"
+                  >refresh</span
+                >
+                Revoking...
+              </span>
+            </button>
+          </div>
+
+          <div class="mt-4 flex gap-2" *ngIf="cert.revoked && isAdmin">
+            <button
+              mat-raised-button
+              color="primary"
+              (click)="unrevokeCertificate(cert)"
+              [disabled]="actionInProgress[cert.id]"
+              class="flex-1"
+            >
+              <span
+                *ngIf="!actionInProgress[cert.id]"
+                class="flex items-center gap-2"
+              >
+                <span class="material-icons-outlined text-base">restore</span>
+                Restore Certificate
+              </span>
+              <span
+                *ngIf="actionInProgress[cert.id]"
+                class="flex items-center gap-2"
+              >
+                <span class="material-icons-outlined text-base animate-spin"
+                  >refresh</span
+                >
+                Restoring...
+              </span>
+            </button>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>

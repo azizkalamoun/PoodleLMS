@@ -1,0 +1,7 @@
+<div
+  *ngIf="loading"
+  class="flex flex-col items-center justify-center p-8 gap-3"
+>
+  <mat-spinner [diameter]="diameter" color="primary"></mat-spinner>
+  <span *ngIf="message" class="text-sm text-surface-500">{{ message }}</span>
+</div>

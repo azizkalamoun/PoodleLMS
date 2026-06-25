@@ -1,0 +1,141 @@
+<div class="h-screen flex overflow-hidden bg-surface-100">
+  <!-- ─── Sidebar ─────────────────────────────────── -->
+  <aside
+    class="flex flex-col bg-sidebar text-white transition-all duration-300 ease-in-out relative z-20"
+    [class.w-sidebar]="!collapsed()"
+    [class.w-sidebar-collapsed]="collapsed()"
+  >
+    <!-- Logo -->
+    <div
+      class="h-navbar flex items-center gap-3 px-5 border-b border-white/10 flex-shrink-0"
+    >
+      <!-- Custom Logo Image -->
+      <img
+        *ngIf="logoConfig.logoImageUrl && !logoConfig.useDefaultLogo"
+        [src]="logoConfig.logoImageUrl"
+        alt="Pooodle Logo"
+        class="w-8 h-8 rounded-lg flex-shrink-0 object-cover"
+      />
+      <!-- Default Logo Icon Fallback -->
+      <div
+        *ngIf="logoConfig.useDefaultLogo"
+        class="w-8 h-8 rounded-lg bg-brand-600 flex items-center justify-center flex-shrink-0"
+      >
+        <span class="material-icons-outlined text-white !text-lg">school</span>
+      </div>
+      <span
+        class="text-sm font-semibold whitespace-nowrap overflow-hidden transition-all duration-300"
+        [class.opacity-0]="collapsed()"
+        [class.w-0]="collapsed()"
+        >Pooodle</span
+      >
+    </div>
+
+    <!-- Nav Items -->
+    <nav class="flex-1 py-4 px-3 space-y-1 overflow-y-auto">
+      <a
+        *ngFor="let item of navItems"
+        [routerLink]="item.route"
+        routerLinkActive="bg-brand-600/20 text-white"
+        class="flex items-center gap-3 px-3 py-2.5 rounded-lg text-sidebar-muted hover:bg-sidebar-hover hover:text-white transition-all duration-200 group"
+        [matTooltip]="collapsed() ? item.label : ''"
+        matTooltipPosition="right"
+      >
+        <span class="material-icons-outlined !text-xl flex-shrink-0">{{
+          item.icon
+        }}</span>
+        <span
+          class="text-sm font-medium whitespace-nowrap overflow-hidden transition-all duration-300"
+          [class.opacity-0]="collapsed()"
+          [class.w-0]="collapsed()"
+          >{{ item.label }}</span
+        >
+      </a>
+    </nav>
+
+    <!-- User Section -->
+    <div class="px-3 py-4 border-t border-white/10 flex-shrink-0">
+      <div class="flex items-center gap-3 px-3">
+        <div
+          class="w-8 h-8 rounded-full bg-brand-600 flex items-center justify-center flex-shrink-0 text-xs font-semibold"
+        >
+          {{ getUserInitials() }}
+        </div>
+        <div
+          class="flex-1 min-w-0 overflow-hidden transition-all duration-300"
+          [class.opacity-0]="collapsed()"
+          [class.w-0]="collapsed()"
+        >
+          <p class="text-sm font-medium text-white truncate">
+            {{ currentUser?.firstName }} {{ currentUser?.lastName }}
+          </p>
+          <p class="text-xs text-sidebar-muted truncate">Employee</p>
+        </div>
+      </div>
+    </div>
+  </aside>
+
+  <!-- ─── Main Area ───────────────────────────────── -->
+  <div class="flex-1 flex flex-col min-w-0">
+    <!-- Top Navbar -->
+    <header
+      class="h-navbar bg-white/80 backdrop-blur-md border-b border-surface-200/80 flex items-center justify-between px-6 flex-shrink-0 z-10"
+    >
+      <div class="flex items-center gap-4">
+        <button
+          class="w-9 h-9 rounded-lg flex items-center justify-center hover:bg-surface-100 transition-colors text-surface-500"
+          (click)="toggleSidebar()"
+          aria-label="Toggle sidebar"
+        >
+          <span class="material-icons-outlined !text-xl">{{
+            collapsed() ? "menu_open" : "menu"
+          }}</span>
+        </button>
+      </div>
+
+      <div class="flex items-center gap-3">
+        <div class="flex items-center h-9">
+          <app-notification-bell></app-notification-bell>
+        </div>
+
+        <button
+          class="flex items-center gap-1 px-2 py-1.5 rounded-lg hover:bg-surface-100 transition-colors"
+          [matMenuTriggerFor]="userMenu"
+        >
+          <div
+            class="w-8 h-8 rounded-full bg-brand-600 flex items-center justify-center text-white text-xs font-semibold"
+          >
+            {{ getUserInitials() }}
+          </div>
+          <span class="text-sm font-medium text-surface-700 hidden sm:inline">{{
+            currentUser?.firstName
+          }}</span>
+          <div class="flex items-center h-9 w-6">
+            <span class="material-icons-outlined !text-base text-surface-400"
+              >expand_more</span
+            >
+          </div>
+        </button>
+        <mat-menu #userMenu="matMenu" class="!mt-1">
+          <div class="px-4 py-3 border-b border-surface-100">
+            <p class="text-sm font-medium text-surface-900">
+              {{ currentUser?.firstName }} {{ currentUser?.lastName }}
+            </p>
+            <p class="text-xs text-surface-500">{{ currentUser?.email }}</p>
+          </div>
+          <button mat-menu-item (click)="logout()" class="!text-red-600">
+            <mat-icon class="!text-red-600">logout</mat-icon>
+            <span>Sign out</span>
+          </button>
+        </mat-menu>
+      </div>
+    </header>
+
+    <!-- Content Area -->
+    <main class="flex-1 overflow-y-auto p-6 bg-surface-50">
+      <div class="max-w-7xl mx-auto animate-fade-in">
+        <router-outlet></router-outlet>
+      </div>
+    </main>
+  </div>
+</div>

@@ -1,0 +1,256 @@
+<app-page-header
+  title="Courses"
+  subtitle="Create and manage training courses"
+  [breadcrumbs]="breadcrumbs"
+>
+  <button
+    class="btn-primary flex items-center gap-2"
+    (click)="openAddCourseModal()"
+  >
+    <span class="material-icons-outlined !text-lg">add</span>
+    New Course
+  </button>
+</app-page-header>
+
+<!-- Loading Skeleton -->
+<app-skeleton *ngIf="loading" type="card" [count]="6"></app-skeleton>
+
+<!-- Search and Filters -->
+<div *ngIf="!loading && courses.length > 0" class="card mb-6 space-y-4">
+  <div class="grid grid-cols-1 md:grid-cols-4 gap-4">
+    <!-- Search Field -->
+    <mat-form-field appearance="outline" class="w-full">
+      <mat-label>Search courses</mat-label>
+      <input
+        matInput
+        placeholder="Search by title or description..."
+        [ngModel]="searchTerm"
+        (ngModelChange)="onSearchChange($event)"
+      />
+      <span matPrefix class="mr-2">
+        <span class="material-icons-outlined !text-lg text-surface-400"
+          >search</span
+        >
+      </span>
+      <button
+        *ngIf="searchTerm"
+        mat-icon-button
+        matSuffix
+        (click)="onSearchChange('')"
+        class="text-surface-400 !h-9 !w-9"
+      >
+        <span class="material-icons-outlined">close</span>
+      </button>
+    </mat-form-field>
+
+    <!-- Status Filter -->
+    <mat-form-field appearance="outline" class="w-full">
+      <mat-label>Filter by status</mat-label>
+      <mat-select
+        [ngModel]="statusFilter"
+        (ngModelChange)="onStatusFilterChange($event)"
+      >
+        <mat-option value="">All Statuses</mat-option>
+        <mat-option value="DRAFT">Draft</mat-option>
+        <mat-option value="PUBLISHED">Published</mat-option>
+      </mat-select>
+    </mat-form-field>
+
+    <!-- Order Filter -->
+    <mat-form-field appearance="outline" class="w-full">
+      <mat-label>Order</mat-label>
+      <mat-select [ngModel]="order" (ngModelChange)="onOrderChange($event)">
+        <mat-option value="newest">Newest first</mat-option>
+        <mat-option value="oldest">Oldest first</mat-option>
+      </mat-select>
+    </mat-form-field>
+
+    <!-- Results Count -->
+    <div
+      class="flex items-center justify-end px-4 py-2 rounded-lg bg-surface-50 border border-surface-200"
+    >
+      <span class="text-sm text-surface-600">
+        <strong class="text-surface-900">{{ filteredCourses.length }}</strong>
+        of
+        <strong class="text-surface-900">{{ courses.length }}</strong>
+        courses
+      </span>
+    </div>
+  </div>
+</div>
+
+<!-- Empty State -->
+<app-empty-state
+  *ngIf="!loading && courses.length === 0"
+  icon="menu_book"
+  title="No courses yet"
+  message="Create your first training course to get started."
+>
+  <button class="btn-primary mt-2" (click)="openAddCourseModal()">
+    <span class="material-icons-outlined !text-lg mr-1">add</span>
+    Create Course
+  </button>
+</app-empty-state>
+
+<!-- No Results Found -->
+<app-empty-state
+  *ngIf="!loading && courses.length > 0 && filteredCourses.length === 0"
+  icon="search_off"
+  title="No courses found"
+  message="Try adjusting your search or filters."
+>
+  <button
+    class="btn-primary mt-2"
+    (click)="onSearchChange(''); onStatusFilterChange('')"
+  >
+    <span class="material-icons-outlined !text-lg mr-1">refresh</span>
+    Clear Filters
+  </button>
+</app-empty-state>
+
+<!-- Course Cards Grid -->
+<div
+  *ngIf="!loading && paginatedCourses.length > 0"
+  class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-5 mb-6"
+>
+  <div
+    *ngFor="let course of paginatedCourses"
+    class="card card-interactive group flex flex-col"
+  >
+    <div class="flex items-start justify-between mb-3">
+      <div
+        class="w-10 h-10 rounded-xl bg-brand-50 text-brand-600 flex items-center justify-center flex-shrink-0"
+      >
+        <span class="material-icons-outlined !text-xl">menu_book</span>
+      </div>
+      <app-status-badge
+        [status]="course.status"
+        [dot]="true"
+      ></app-status-badge>
+    </div>
+
+    <h3 class="text-base font-semibold text-surface-900 mb-1 line-clamp-1">
+      {{ course.title }}
+    </h3>
+    <p class="text-sm text-surface-500 line-clamp-2 mb-4 flex-1">
+      {{ course.description }}
+    </p>
+
+    <div class="flex items-center gap-2 text-xs text-surface-500 mb-4">
+      <span class="material-icons-outlined !text-sm">grade</span>
+      <span>Passing: {{ course.passingScore }}%</span>
+    </div>
+
+    <div class="flex items-center gap-2 pt-3 border-t border-surface-100">
+      <a
+        [routerLink]="['/admin/courses', course.id]"
+        class="flex-1 btn-primary !py-1.5 text-center text-xs no-underline"
+        >View Details</a
+      >
+      <button
+        class="w-8 h-8 rounded-lg flex items-center justify-center hover:bg-surface-100 text-surface-400 transition-colors"
+        (click)="editCourse(course)"
+      >
+        <span class="material-icons-outlined !text-base">edit</span>
+      </button>
+      <button
+        class="w-8 h-8 rounded-lg flex items-center justify-center hover:bg-red-50 text-surface-400 hover:text-red-600 transition-colors"
+        (click)="deleteCourse(course)"
+      >
+        <span class="material-icons-outlined !text-base">delete</span>
+      </button>
+    </div>
+  </div>
+</div>
+
+<!-- Pagination -->
+<mat-paginator
+  *ngIf="!loading && filteredCourses.length > 0"
+  [length]="totalElements"
+  [pageSize]="pageSize"
+  [pageSizeOptions]="[9, 18, 27]"
+  (page)="onPageChange($event)"
+  class="bg-white border border-surface-200 rounded-lg"
+></mat-paginator>
+
+<!-- Course Form Modal Template -->
+<ng-template #courseFormTemplate>
+  <div class="p-6 max-h-[90vh] overflow-y-auto">
+    <h2 class="text-lg font-semibold text-surface-900 mb-6">
+      {{ editingId ? "Edit Course" : "Create Course" }}
+    </h2>
+    <form [formGroup]="courseForm" (ngSubmit)="onSubmit()" class="space-y-5">
+      <mat-form-field appearance="outline" class="w-full">
+        <mat-label>Title</mat-label>
+        <input matInput formControlName="title" placeholder="Course title" />
+        <mat-error *ngIf="courseForm.get('title')?.hasError('required')"
+          >Title is required</mat-error
+        >
+      </mat-form-field>
+
+      <mat-form-field appearance="outline" class="w-full">
+        <mat-label>Description</mat-label>
+        <textarea
+          matInput
+          formControlName="description"
+          rows="4"
+          placeholder="Course description"
+        ></textarea>
+        <mat-error *ngIf="courseForm.get('description')?.hasError('required')"
+          >Description is required</mat-error
+        >
+      </mat-form-field>
+
+      <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+        <mat-form-field appearance="outline" class="w-full">
+          <mat-label>Status</mat-label>
+          <mat-select formControlName="status">
+            <mat-option value="DRAFT">Draft</mat-option>
+            <mat-option value="PUBLISHED">Published</mat-option>
+          </mat-select>
+          <mat-error *ngIf="courseForm.get('status')?.hasError('required')"
+            >Status is required</mat-error
+          >
+        </mat-form-field>
+
+        <mat-form-field appearance="outline" class="w-full">
+          <mat-label>Passing Score (%)</mat-label>
+          <input
+            matInput
+            formControlName="passingScore"
+            type="number"
+            min="0"
+            max="100"
+          />
+          <mat-error
+            *ngIf="courseForm.get('passingScore')?.hasError('required')"
+            >Passing score is required</mat-error
+          >
+          <mat-error *ngIf="courseForm.get('passingScore')?.hasError('min')"
+            >Minimum value is 0</mat-error
+          >
+          <mat-error *ngIf="courseForm.get('passingScore')?.hasError('max')"
+            >Maximum value is 100</mat-error
+          >
+        </mat-form-field>
+      </div>
+
+      <div class="flex gap-3 justify-end pt-4 border-t">
+        <button
+          type="button"
+          class="btn-secondary"
+          (click)="dialogRef.close(false)"
+        >
+          Cancel
+        </button>
+        <button
+          type="submit"
+          class="btn-primary"
+          [disabled]="courseForm.invalid"
+        >
+          {{ editingId ? "Update" : "Create" }}
+        </button>
+      </div>
+    </form>
+  </div>
+</ng-template>

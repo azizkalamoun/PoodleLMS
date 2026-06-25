@@ -1,0 +1,81 @@
+/* Employee Progress Component Styles */
+
+:host {
+  display: block;
+}
+
+/* Card Styling */
+.card {
+  background-color: white;
+  border-radius: 0.5rem;
+  border: 1px solid #e5e7eb;
+  padding: 1.5rem;
+  box-shadow: 0 1px 2px 0 rgba(0, 0, 0, 0.05);
+  transition: box-shadow 0.2s;
+
+  &:hover {
+    box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1);
+  }
+}
+
+/* Progress Bar */
+::ng-deep {
+  .mdc-linear-progress {
+    height: 6px;
+    border-radius: 3px;
+  }
+
+  .mdc-linear-progress__bar-inner {
+    background-color: var(--color-brand-600);
+  }
+}
+
+/* Table Row Hover */
+table {
+  tbody tr {
+    transition: background-color 0.15s;
+
+    &:hover {
+      background-color: #f9fafb;
+    }
+  }
+}
+
+/* Status Badges */
+.status-badge {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.25rem;
+  padding: 0.25rem 0.75rem;
+  border-radius: 9999px;
+  font-size: 0.875rem;
+  font-weight: 500;
+}
+
+/* Statistics Grid */
+.stats-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+  gap: 1.5rem;
+}
+
+/* Responsive Adjustments */
+@media (max-width: 768px) {
+  .stats-grid {
+    grid-template-columns: repeat(2, 1fr);
+  }
+
+  .card {
+    padding: 1rem;
+  }
+
+  table {
+    font-size: 0.875rem;
+  }
+}
+
+@media (max-width: 480px) {
+  .stats-grid {
+    grid-template-columns: 1fr;
+  }
+}

@@ -1,0 +1,88 @@
+# ─── Spring Boot / Java ──────────────────────────────
+target/
+*.class
+*.jar
+*.war
+*.log
+*.tmp
+*.orig
+*.swp
+*.swo
+HELP.md
+!.mvn/wrapper/maven-wrapper.jar
+!**/src/main/**/target/
+!**/src/test/**/target/
+
+# ─── Maven ───────────────────────────────────────────
+.mvn/timing/
+
+# ─── Angular / Node ──────────────────────────────────
+node_modules/
+dist/
+tmp/
+out-tsc/
+bazel-out/
+*.js.map
+*.d.ts.map
+npm-debug.log
+yarn-error.log
+yarn-debug.log
+yarn-lock-error.log
+
+# ─── Angular cache ───────────────────────────────────
+.angular/cache/
+
+# ─── Environment files ───────────────────────────────
+.env
+.env.local
+.env.*.local
+
+# ─── IDE / Editor ────────────────────────────────────
+.idea/
+*.iml
+*.iws
+*.ipr
+.apt_generated
+.classpath
+.factorypath
+.project
+.settings
+.springBeans
+.sts4-cache
+.vscode/
+!.vscode/settings.json
+!.vscode/tasks.json
+!.vscode/launch.json
+!.vscode/extensions.json
+.history/
+.c9/
+*.launch
+*.sublime-workspace
+nbproject/private/
+nbbuild/
+dist/
+nbdist/
+.nb-gradle/
+
+# ─── OS files ────────────────────────────────────────
+.DS_Store
+Thumbs.db
+Desktop.ini
+ehthumbs.db
+
+# ─── Testing / Coverage ──────────────────────────────
+/coverage
+/__pycache__/
+*.pyc
+testem.log
+/connect.lock
+/screenshots/
+
+# ─── SASS cache ──────────────────────────────────────
+.sass-cache/
+
+# ─── Docker ──────────────────────────────────────────
+docker-compose.override.yml
+
+# ─── Logs ────────────────────────────────────────────
+*.log

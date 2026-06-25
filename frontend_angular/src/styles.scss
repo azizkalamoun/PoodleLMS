@@ -1,0 +1,683 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+@import "@angular/material/prebuilt-themes/indigo-pink.css";
+
+/* ─── Design Tokens ───────────────────────────────────── */
+:root {
+  --color-brand: #3b9ca2;
+  --color-brand-light: #f0f8f9;
+  --color-sidebar-bg: #1a3f48;
+  --color-sidebar-hover: #245e66;
+  --color-surface: #ffffff;
+  --color-surface-secondary: #f0f8f9;
+  --color-border: #d4eeef;
+  --color-text-primary: #0f202a;
+  --color-text-secondary: #2f7d84;
+  --color-text-muted: #7ccad0;
+  --radius: 8px;
+  --radius-lg: 12px;
+  --radius-xl: 16px;
+  --shadow-card:
+    0 1px 3px 0 rgb(0 0 0 / 0.04), 0 1px 2px -1px rgb(0 0 0 / 0.04);
+  --shadow-card-hover:
+    0 10px 15px -3px rgb(0 0 0 / 0.06), 0 4px 6px -4px rgb(0 0 0 / 0.04);
+  --shadow-float:
+    0 20px 25px -5px rgb(0 0 0 / 0.08), 0 8px 10px -6px rgb(0 0 0 / 0.04);
+  --sidebar-width: 260px;
+  --sidebar-collapsed-width: 72px;
+  --navbar-height: 64px;
+  --font-sans: "Montserrat", "Inter", system-ui, -apple-system, sans-serif;
+  --transition-base: 0.2s cubic-bezier(0.4, 0, 0.2, 1);
+  --transition-spring: 0.3s cubic-bezier(0.34, 1.56, 0.64, 1);
+}
+
+/* ─── Dark Mode Tokens ────────────────────────────────── */
+.dark {
+  --color-surface: #0f202a;
+  --color-surface-secondary: #1a3f48;
+  --color-border: #245e66;
+  --color-text-primary: #f0f8f9;
+  --color-text-secondary: #7ccad0;
+  --color-text-muted: #50b8c1;
+  --shadow-card: 0 1px 3px 0 rgb(0 0 0 / 0.2);
+  --shadow-card-hover: 0 4px 6px -1px rgb(0 0 0 / 0.3);
+}
+
+/* ─── Base Resets ─────────────────────────────────────── */
+*,
+*::before,
+*::after {
+  box-sizing: border-box;
+}
+
+html,
+body {
+  height: 100%;
+  margin: 0;
+  padding: 0;
+  font-family: var(--font-sans);
+  background-color: var(--color-surface-secondary);
+  color: var(--color-text-primary);
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+  text-rendering: optimizeLegibility;
+}
+
+/* Selection color */
+::selection {
+  background-color: rgba(37, 99, 235, 0.15);
+  color: inherit;
+}
+
+/* Smooth focus-visible rings */
+*:focus-visible {
+  outline: 2px solid var(--color-brand);
+  outline-offset: 2px;
+  border-radius: var(--radius);
+}
+
+/* ─── Typography Scale ────────────────────────────────── */
+h1,
+h2,
+h3,
+h4,
+h5,
+h6 {
+  font-weight: 600;
+  letter-spacing: -0.015em;
+  color: var(--color-text-primary);
+}
+
+/* ─── Scrollbar Styling ───────────────────────────────── */
+::-webkit-scrollbar {
+  width: 6px;
+  height: 6px;
+}
+::-webkit-scrollbar-track {
+  background: transparent;
+}
+::-webkit-scrollbar-thumb {
+  background: #cbd5e1;
+  border-radius: 3px;
+  &:hover {
+    background: #94a3b8;
+  }
+}
+.dark ::-webkit-scrollbar-thumb {
+  background: #3f3f46;
+  &:hover {
+    background: #52525b;
+  }
+}
+
+/* ─── Material Theme Overrides ────────────────────────── */
+
+/* Cards */
+.mat-mdc-card {
+  --mdc-elevated-card-container-color: var(--color-surface);
+  border-radius: var(--radius-xl) !important;
+  box-shadow: var(--shadow-card) !important;
+  border: 1px solid var(--color-border);
+  transition:
+    box-shadow var(--transition-base),
+    transform var(--transition-base);
+}
+
+/* Toolbar */
+.mat-toolbar {
+  font-family: var(--font-sans) !important;
+}
+
+/* Buttons */
+.mat-mdc-raised-button.mat-primary {
+  --mdc-protected-button-container-color: #3b9ca2;
+  border-radius: var(--radius) !important;
+  font-weight: 500 !important;
+  letter-spacing: 0 !important;
+  text-transform: none !important;
+}
+
+.mat-mdc-outlined-button,
+.mat-mdc-unelevated-button {
+  border-radius: var(--radius) !important;
+  letter-spacing: 0 !important;
+  text-transform: none !important;
+}
+
+/* Form Fields */
+.mat-mdc-form-field {
+  font-family: var(--font-sans) !important;
+  width: 100%;
+}
+
+.mat-mdc-form-field-subscript-wrapper {
+  font-size: 0.75rem;
+}
+
+.mat-mdc-text-field-wrapper.mdc-text-field--outlined {
+  --mdc-outlined-text-field-container-shape: var(--radius) !important;
+}
+
+/* Fix notched outline: make all 3 segments use a single uniform border */
+.mdc-text-field--outlined .mdc-notched-outline {
+  .mdc-notched-outline__leading {
+    border-radius: var(--radius) 0 0 var(--radius) !important;
+    border-right: none !important;
+    width: 12px !important;
+  }
+  .mdc-notched-outline__notch {
+    border-left: none !important;
+    border-right: none !important;
+  }
+  .mdc-notched-outline__trailing {
+    border-radius: 0 var(--radius) var(--radius) 0 !important;
+    border-left: none !important;
+  }
+}
+
+/* Outline appearance: idle */
+.mat-mdc-form-field .mdc-notched-outline__leading,
+.mat-mdc-form-field .mdc-notched-outline__notch,
+.mat-mdc-form-field .mdc-notched-outline__trailing {
+  border-color: var(--color-border) !important;
+}
+
+/* Outline appearance: hover */
+.mat-mdc-form-field:hover .mdc-notched-outline__leading,
+.mat-mdc-form-field:hover .mdc-notched-outline__notch,
+.mat-mdc-form-field:hover .mdc-notched-outline__trailing {
+  border-color: #94a3b8 !important;
+}
+
+/* Outline appearance: focused */
+.mat-mdc-form-field.mat-focused .mdc-notched-outline__leading,
+.mat-mdc-form-field.mat-focused .mdc-notched-outline__notch,
+.mat-mdc-form-field.mat-focused .mdc-notched-outline__trailing {
+  border-color: var(--color-brand) !important;
+  border-width: 2px !important;
+}
+
+/* Prefix icon spacing */
+.mat-mdc-form-field .mat-mdc-form-field-icon-prefix {
+  padding: 0 4px 0 12px !important;
+}
+
+.mat-mdc-form-field .mat-mdc-form-field-icon-suffix {
+  padding: 0 4px !important;
+}
+
+/* Label colors */
+.mat-mdc-form-field .mat-mdc-floating-label {
+  color: var(--color-text-secondary) !important;
+  font-family: var(--font-sans) !important;
+}
+
+.mat-mdc-form-field.mat-focused .mat-mdc-floating-label {
+  color: var(--color-brand) !important;
+}
+
+/* Input text */
+.mat-mdc-form-field .mat-mdc-input-element {
+  font-family: var(--font-sans) !important;
+  color: var(--color-text-primary) !important;
+  caret-color: var(--color-brand) !important;
+}
+
+.mat-mdc-form-field .mat-mdc-input-element::placeholder {
+  color: var(--color-text-muted) !important;
+}
+
+/* Prefix & Suffix icons */
+.mat-mdc-form-field .mat-mdc-form-field-icon-prefix,
+.mat-mdc-form-field .mat-mdc-form-field-icon-suffix {
+  color: var(--color-text-muted) !important;
+}
+
+.mat-mdc-form-field.mat-focused .mat-mdc-form-field-icon-prefix,
+.mat-mdc-form-field.mat-focused .mat-mdc-form-field-icon-suffix {
+  color: var(--color-brand) !important;
+}
+
+/* Error state */
+.mat-mdc-form-field.mat-form-field-invalid .mdc-notched-outline__leading,
+.mat-mdc-form-field.mat-form-field-invalid .mdc-notched-outline__notch,
+.mat-mdc-form-field.mat-form-field-invalid .mdc-notched-outline__trailing {
+  border-color: #ef4444 !important;
+}
+
+.mat-mdc-form-field.mat-form-field-invalid .mat-mdc-floating-label {
+  color: #ef4444 !important;
+}
+
+.mat-mdc-form-field .mat-mdc-form-field-error {
+  font-size: 0.75rem;
+  font-family: var(--font-sans) !important;
+}
+
+/* Tables */
+.mat-mdc-table {
+  --mat-table-background-color: transparent;
+  font-family: var(--font-sans) !important;
+}
+
+.mat-mdc-header-cell {
+  font-weight: 600 !important;
+  font-size: 0.75rem !important;
+  text-transform: uppercase !important;
+  letter-spacing: 0.05em !important;
+  color: var(--color-text-secondary) !important;
+  border-bottom-color: var(--color-border) !important;
+  background: #f8fafc !important;
+}
+
+.mat-mdc-cell {
+  font-size: 0.875rem !important;
+  color: var(--color-text-primary) !important;
+  border-bottom-color: var(--color-border) !important;
+}
+
+.mat-mdc-row {
+  transition: background-color var(--transition-base);
+  &:hover {
+    background-color: rgba(37, 99, 235, 0.03) !important;
+  }
+  &:last-child .mat-mdc-cell {
+    border-bottom: none !important;
+  }
+}
+
+/* Dialog */
+.mat-mdc-dialog-container .mdc-dialog__surface {
+  border-radius: var(--radius-xl) !important;
+  box-shadow: var(--shadow-float) !important;
+}
+
+.cdk-overlay-dark-backdrop {
+  background: rgba(15, 23, 42, 0.4) !important;
+  backdrop-filter: blur(4px) !important;
+}
+
+/* ─── Snackbar / Toast ────────────────────────────────── */
+.mat-mdc-snack-bar-container {
+  margin: 16px !important;
+}
+
+.mat-mdc-snack-bar-container .mdc-snackbar__surface {
+  background: #f0f8f9 !important;
+  border-radius: var(--radius-lg) !important;
+  box-shadow:
+    0 20px 25px -5px rgb(0 0 0 / 0.15),
+    0 8px 10px -6px rgb(0 0 0 / 0.1) !important;
+  padding: 0 !important;
+  min-width: 320px !important;
+  max-width: 480px !important;
+  overflow: hidden;
+  border: 1px solid #d4eeef;
+}
+
+.mat-mdc-snack-bar-container .mdc-snackbar__label {
+  color: #0f202a !important;
+  font-family: var(--font-sans) !important;
+  font-size: 0.875rem !important;
+  font-weight: 500 !important;
+  padding: 14px 16px 14px 20px !important;
+  letter-spacing: -0.01em;
+}
+
+.mat-mdc-snack-bar-container .mat-mdc-snack-bar-action .mdc-button__label {
+  color: #245e66 !important;
+  font-family: var(--font-sans) !important;
+  font-weight: 600 !important;
+  font-size: 0.8125rem !important;
+  letter-spacing: 0;
+  text-transform: none;
+}
+
+.mat-mdc-snack-bar-container .mdc-snackbar__surface::before {
+  content: "";
+  position: absolute;
+  left: 0;
+  top: 0;
+  bottom: 0;
+  width: 4px;
+  background: #3b9ca2;
+  border-radius: 4px 0 0 4px;
+}
+
+/* Success toast */
+.mat-mdc-snack-bar-container.success-snackbar .mdc-snackbar__surface {
+  background: #052e16 !important;
+  border-color: rgba(34, 197, 94, 0.15);
+  &::before {
+    background: #22c55e;
+  }
+}
+.mat-mdc-snack-bar-container.success-snackbar .mdc-snackbar__label {
+  color: #dcfce7 !important;
+}
+.mat-mdc-snack-bar-container.success-snackbar
+  .mat-mdc-snack-bar-action
+  .mdc-button__label {
+  color: #86efac !important;
+}
+
+/* Error toast */
+.mat-mdc-snack-bar-container.error-snackbar .mdc-snackbar__surface {
+  background: #450a0a !important;
+  border-color: rgba(239, 68, 68, 0.15);
+  &::before {
+    background: #ef4444;
+  }
+}
+.mat-mdc-snack-bar-container.error-snackbar .mdc-snackbar__label {
+  color: #fef2f2 !important;
+}
+.mat-mdc-snack-bar-container.error-snackbar
+  .mat-mdc-snack-bar-action
+  .mdc-button__label {
+  color: #fca5a5 !important;
+}
+
+/* Warning toast */
+.mat-mdc-snack-bar-container.warning-snackbar .mdc-snackbar__surface {
+  background: #451a03 !important;
+  border-color: rgba(245, 158, 11, 0.15);
+  &::before {
+    background: #f59e0b;
+  }
+}
+.mat-mdc-snack-bar-container.warning-snackbar .mdc-snackbar__label {
+  color: #fefce8 !important;
+}
+.mat-mdc-snack-bar-container.warning-snackbar
+  .mat-mdc-snack-bar-action
+  .mdc-button__label {
+  color: #fcd34d !important;
+}
+
+/* ─── Tabs ────────────────────────────────────────────── */
+.mat-mdc-tab {
+  font-family: var(--font-sans) !important;
+  letter-spacing: 0 !important;
+  text-transform: none !important;
+}
+
+.mat-mdc-tab-group .mat-mdc-tab-header {
+  border-bottom: 1px solid var(--color-border);
+}
+
+.mat-mdc-tab .mdc-tab-indicator__content--underline {
+  border-radius: 2px 2px 0 0 !important;
+  border-top-width: 3px !important;
+}
+
+/* ─── Expansion Panel ─────────────────────────────────── */
+.mat-expansion-panel {
+  border-radius: var(--radius-lg) !important;
+  box-shadow: none !important;
+  border: 1px solid var(--color-border);
+  margin-bottom: 8px !important;
+  transition: border-color var(--transition-base);
+  &:hover {
+    border-color: #cbd5e1;
+  }
+  &.mat-expanded {
+    border-color: var(--color-brand);
+    box-shadow: 0 0 0 1px rgba(37, 99, 235, 0.1) !important;
+  }
+}
+
+.mat-expansion-panel-header {
+  transition: background-color var(--transition-base);
+}
+
+/* Paginator */
+.mat-mdc-paginator {
+  font-family: var(--font-sans) !important;
+  background: transparent !important;
+}
+
+/* Menu */
+.mat-mdc-menu-panel {
+  border-radius: var(--radius-lg) !important;
+  border: 1px solid var(--color-border);
+  box-shadow: var(--shadow-float) !important;
+}
+
+/* Tooltip */
+.mat-mdc-tooltip .mdc-tooltip__surface {
+  font-family: var(--font-sans) !important;
+  font-size: 0.75rem !important;
+  border-radius: var(--radius) !important;
+  background: #1e293b !important;
+  padding: 6px 12px !important;
+  line-height: 1.4;
+}
+
+/* ─── Material Icons Alignment Fix ───────────────────── */
+/* Fix icon offset and hover effect circles */
+.material-icons,
+.material-icons-outlined {
+  /* Reset to prevent offset */
+  line-height: 1;
+  letter-spacing: 0;
+  vertical-align: middle;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  font-feature-settings: "liga" 1;
+  font-variation-settings: normal;
+  /* Ensure icons don't shift on hover/transform */
+  transform-origin: center;
+  will-change: auto;
+}
+
+/* Icon button containers */
+button[class*="w-"],
+button[class*="h-"] {
+  /* Ensure proper alignment for small icon buttons */
+  display: flex;
+  align-items: center;
+  justify-content: center;
+
+  .material-icons,
+  .material-icons-outlined {
+    margin: 0;
+    padding: 0;
+  }
+}
+
+/* Sidebar icons - fix alignment */
+.sidebar-nav .material-icons-outlined,
+[class*="sidebar"] .material-icons-outlined {
+  line-height: 1;
+  letter-spacing: 0;
+  margin: 0;
+  padding: 0;
+}
+
+/* Icon in flex containers */
+.flex.items-center,
+.flex.justify-center {
+  .material-icons,
+  .material-icons-outlined {
+    flex-shrink: 0;
+    margin: 0;
+  }
+}
+
+/* Material Design icon buttons - prevent hover offset */
+.mat-mdc-icon-button {
+  position: relative;
+
+  .material-icons,
+  .material-icons-outlined,
+  mat-icon {
+    margin: 0;
+    padding: 0;
+    line-height: 1;
+    letter-spacing: 0;
+    vertical-align: middle;
+  }
+}
+
+/* Remove ripple offset */
+.mat-mdc-button-base::before {
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+}
+
+/* Fix icon hover circles positioning */
+button:hover .material-icons,
+button:hover .material-icons-outlined {
+  transform: none !important;
+  transition: color var(--transition-base);
+}
+
+/* Ensure hover bg doesn't offset icon */
+.hover\:bg-surface-100:hover,
+.hover\:bg-red-50:hover,
+.hover\:bg-surface-100 {
+  .material-icons,
+  .material-icons-outlined {
+    transform: none;
+    margin: 0;
+  }
+}
+
+/* ─── Utility Classes ─────────────────────────────────── */
+@layer components {
+  .card {
+    @apply bg-white border border-surface-200 rounded-xl shadow-card p-5;
+    transition:
+      box-shadow var(--transition-base),
+      border-color var(--transition-base);
+  }
+  .card-interactive {
+    @apply card cursor-pointer;
+    &:hover {
+      @apply shadow-card-hover border-surface-300;
+      transform: translateY(-2px);
+    }
+  }
+  .badge {
+    @apply inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium;
+  }
+  .badge-blue {
+    @apply badge bg-brand-50 text-brand-700;
+  }
+  .badge-green {
+    @apply badge bg-green-50 text-green-700;
+  }
+  .badge-red {
+    @apply badge bg-red-50 text-red-700;
+  }
+  .badge-yellow {
+    @apply badge bg-amber-50 text-amber-700;
+  }
+  .badge-gray {
+    @apply badge bg-gray-100 text-gray-600;
+  }
+  .page-header {
+    @apply flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4 mb-6;
+  }
+  .page-title {
+    @apply text-xl font-semibold text-surface-900 tracking-tight;
+  }
+  .page-subtitle {
+    @apply text-sm text-surface-500 mt-0.5;
+  }
+  .section-title {
+    @apply text-base font-semibold text-surface-800;
+  }
+  .skeleton {
+    @apply bg-gradient-to-r from-surface-200 via-surface-100 to-surface-200 bg-[length:200%_100%] animate-skeleton rounded;
+  }
+
+  .dark .skeleton {
+    @apply bg-gradient-to-r from-surface-700 via-surface-600 to-surface-700;
+  }
+  .kpi-card {
+    @apply bg-white border border-surface-200 rounded-xl p-5 shadow-card;
+  }
+  .table-wrapper {
+    @apply bg-white border border-surface-200 rounded-xl shadow-card overflow-hidden;
+  }
+  .form-card {
+    @apply bg-white border border-surface-200 rounded-xl shadow-card p-6;
+  }
+  .empty-state {
+    @apply flex flex-col items-center justify-center py-16 text-center;
+  }
+  .btn-primary {
+    @apply inline-flex items-center justify-center gap-2 px-4 py-2.5 bg-brand-600 text-white text-sm font-medium rounded-lg transition-all focus:outline-none focus:ring-2 focus:ring-brand-500 focus:ring-offset-2;
+    &:hover {
+      @apply bg-brand-700;
+      transform: translateY(-1px);
+      box-shadow: 0 4px 6px -1px rgb(37 99 235 / 0.25);
+    }
+    &:active {
+      transform: translateY(0);
+    }
+  }
+  .btn-secondary {
+    @apply inline-flex items-center justify-center gap-2 px-4 py-2.5 bg-white text-surface-700 text-sm font-medium rounded-lg border border-surface-300 transition-all focus:outline-none focus:ring-2 focus:ring-brand-500 focus:ring-offset-2;
+    &:hover {
+      @apply bg-surface-50 border-surface-400;
+      transform: translateY(-1px);
+    }
+    &:active {
+      transform: translateY(0);
+    }
+  }
+  .btn-danger {
+    @apply inline-flex items-center justify-center gap-2 px-4 py-2.5 bg-danger-600 text-white text-sm font-medium rounded-lg transition-all;
+    &:hover {
+      @apply bg-danger-700;
+      transform: translateY(-1px);
+      box-shadow: 0 4px 6px -1px rgb(220 38 38 / 0.25);
+    }
+    &:active {
+      transform: translateY(0);
+    }
+  }
+  .input-base {
+    @apply w-full px-3 py-2.5 text-sm border border-surface-300 rounded-lg bg-white text-surface-900 placeholder-surface-400 focus:outline-none focus:ring-2 focus:ring-brand-500 focus:border-brand-500 transition-colors;
+  }
+}
+
+/* ─── Dark Mode Overrides ─────────────────────────────── */
+.dark {
+  .card,
+  .kpi-card,
+  .table-wrapper,
+  .form-card {
+    @apply bg-surface-900 border-surface-700;
+  }
+  .mat-mdc-card {
+    --mdc-elevated-card-container-color: #18181b;
+    border-color: #3f3f46;
+  }
+  .badge-blue {
+    @apply bg-blue-900/30 text-blue-400;
+  }
+  .badge-green {
+    @apply bg-green-900/30 text-green-400;
+  }
+  .badge-red {
+    @apply bg-red-900/30 text-red-400;
+  }
+  .badge-yellow {
+    @apply bg-amber-900/30 text-amber-400;
+  }
+  .badge-gray {
+    @apply bg-surface-800 text-surface-400;
+  }
+  .mat-mdc-header-cell {
+    background: #1e1e21 !important;
+  }
+}

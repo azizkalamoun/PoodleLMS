@@ -1,0 +1,47 @@
+server:
+  port: 0
+
+spring:
+  datasource:
+    url: jdbc:h2:mem:poodle_test;DB_CLOSE_DELAY=-1;DB_CLOSE_ON_EXIT=FALSE;MODE=PostgreSQL
+    username: sa
+    password:
+    driver-class-name: org.h2.Driver
+
+  sql:
+    init:
+      mode: never
+
+  h2:
+    console:
+      enabled: false
+
+  jpa:
+    hibernate:
+      ddl-auto: create-drop
+    show-sql: false
+    database-platform: org.hibernate.dialect.H2Dialect
+    defer-datasource-initialization: false
+    properties:
+      hibernate:
+        dialect: org.hibernate.dialect.H2Dialect
+
+  flyway:
+    enabled: false
+
+app:
+  jwt:
+    secret: dGVzdC1zZWNyZXQta2V5LWZvci1wb29kbGUtbG1zLXRlc3RpbmctcHVycG9zZXMtb25seS1zaG91bGQtYmUtbG9uZy1lbm91Z2g=
+    expiration-ms: 3600000
+  cors:
+    allowed-origins: http://localhost:3000
+
+logging:
+  level:
+    com.enterprise.poodle: WARN
+    org.springframework.security: WARN
+
+llm:
+  provider: gemini
+  api-key: "test-api-key"
+  model: "gemini-1.0-pro"
